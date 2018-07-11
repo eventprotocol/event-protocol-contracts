@@ -1,4 +1,13 @@
 pragma solidity ^0.4.24;
+
+/*************************************************
+* Title: SafeMath Library
+* Author: https://github.com/OpenZeppelin
+* Date: NA
+* Code version: NA
+* Availability: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/math/SafeMath.sol
+*************************************************/
+
 /**
  * @title SafeMath
  * @dev Math operations with safety checks that throw on error

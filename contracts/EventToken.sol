@@ -1,7 +1,16 @@
 pragma solidity ^0.4.24;
 
-//Source code for event token (ET)
+/*************************************************
+* Title: ERC20 Token
+* Author: https://github.com/willitscale
+* Date: NA
+* Code version: NA
+* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-10/MyFirstToken.sol
+*************************************************/
 
+/// @title Event Token (ET) implementation
+/// @author keshik
+/// @dev The contract declares the required functions, modifiers and events for the Event Token
 import "./StandardToken.sol";
 import "./ERC20.sol";
 import "./ERC223.sol";
@@ -67,7 +76,8 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
   /// @return Whether the transfer was successful or not
   function transfer(address _to, uint256 _value) external isNotPaused returns (bool){
     require(_balanceOf[msg.sender] >= _value);
-    require(_value>0);
+    require(_value > 0);
+    require(_value > MAX_LIMIT);
     require(!isContract(_to));
     require(_allowance[msg.sender][_to] >= _value);
     _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
@@ -84,6 +94,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
   /// @return Whether the transfer was successful or not
   function transferToContract(address _to, uint256 _value, bytes _data) external isNotPaused returns (bool){
     require(_value > 0);
+    require(_value > MAX_LIMIT);
     require(_balanceOf[msg.sender] >= _value);
     require(isContract(_to));
     _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
@@ -104,6 +115,8 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
     require(_to != address(0));
     require(_balanceOf[_from] >= _value);
     require(_allowance[_from][msg.sender] >= _value);
+    require(value > 0);
+    require(_value > MAX_LIMIT);
     _balanceOf[_from] = _balanceOf[_from].sub(_value);
     _balanceOf[_to] = _balanceOf[_to].add(_value);
     _allowance[_from][msg.sender] = _allowance[_from][msg.sender].sub(_value);
@@ -116,6 +129,8 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
   /// @param _value The amount of tokens to be approved for transfer
   /// @return Whether the approval was successful or not
   function approve(address _spender, uint256 _value) external isNotPaused returns (bool){
+    require(value > 0);
+    require(value > MAX_LIMIT)
     _allowance[msg.sender][_spender] = _allowance[msg.sender][_spender].add(_value);
     emit Approval(msg.sender, _spender, _value);
     return true;

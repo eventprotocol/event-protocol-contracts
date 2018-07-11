@@ -1,5 +1,21 @@
 pragma solidity ^0.4.24;
 
+/*************************************************
+* Title: ERC20 Token
+* Author: https://github.com/ethereum
+* Date: NA
+* Code version: NA
+* Availability: https://github.com/ethereum/ethereum-org/blob/master/solidity/token-erc20.sol
+*************************************************/
+
+/*************************************************
+* Title: ERC20 Interface
+* Author: https://github.com/willitscale
+* Date: NA
+* Code version: NA
+* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-09/ERC20.sol
+*************************************************/
+
 /// @title Interface for ERC20 Token Standard
 /// @author keshik
 /// @dev The contract declares the required functions and events to meet the ERC20 Standard

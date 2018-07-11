@@ -3,8 +3,8 @@ pragma solidity ^0.4.24;
 //Source code for event token (ET)
 
 import "./StandardToken.sol";
-import "./ERC223.sol";
 import "./ERC20.sol";
+import "./ERC223.sol";
 import "./ERC223ReceivingContract.sol";
 
 contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC223{
@@ -55,6 +55,8 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
       _;
   }
 
+  /// @param _owner The address
+  /// @return balance of the of the address
   function balanceOf(address _owner) public view returns (uint256){
     return _balanceOf[_owner];
   }
@@ -63,7 +65,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
   /// @param _to The address of the recipient
   /// @param _value The amount of token to be transferred
   /// @return Whether the transfer was successful or not
-  function transfer(address _to, uint256 _value) public isNotPaused returns (bool){
+  function transfer(address _to, uint256 _value) external isNotPaused returns (bool){
     require(_balanceOf[msg.sender] >= _value);
     require(_value>0);
     require(!isContract(_to));
@@ -81,7 +83,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
   /// @param _value The amount of token to be transferred
   /// @param _data Data that is encoded along with the transaction
   /// @return Whether the transfer was successful or not
-  function transfer(address _to, uint256 _value, bytes _data) public isNotPaused returns (bool){
+  function transferToContract(address _to, uint256 _value, bytes _data) external isNotPaused returns (bool){
     require(_value > 0);
     require(_balanceOf[msg.sender] >= _value);
     require(isContract(_to));
@@ -90,7 +92,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
     _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
     ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
     _contract.tokenFallback(msg.sender, _value, _data);
-    emit Transfer(msg.sender, _to, _value);
+    emit Transfer(msg.sender, _to, _value, _data);
     return true;
   }
 
@@ -99,7 +101,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
   /// @param _to The address of the recipient
   /// @param _value The amount of token to be transferred
   /// @return Whether the transfer was successful or not
-  function transferFrom(address _from, address _to, uint256 _value) public isNotPaused returns (bool){
+  function transferFrom(address _from, address _to, uint256 _value) external isNotPaused returns (bool){
     require(_to != address(0));
     require(_balanceOf[_from] >= _value);
     require(_allowance[_from][msg.sender] >= _value);
@@ -114,7 +116,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
   /// @param _spender The address of the account able to transfer the tokens
   /// @param _value The amount of tokens to be approved for transfer
   /// @return Whether the approval was successful or not
-  function approve(address _spender, uint256 _value) public isNotPaused returns (bool){
+  function approve(address _spender, uint256 _value) external isNotPaused returns (bool){
     _allowance[msg.sender][_spender] = _allowance[msg.sender][_spender].add(_value);
     emit Approval(msg.sender, _spender, _value);
     return true;
@@ -145,24 +147,43 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
       return _controller2;
   }
 
-  function setCtrlAddress1(address _newCtrl1) public onlyCtrl1{
+  /// @notice change controller address 1. This function can only be called by the existing controller1
+  /// @param _newCtrl1 The address of the new controller
+  /// @return Whether the setter was successful or not
+  function setCtrlAddress1(address _newCtrl1) external onlyCtrl1 returns (bool){
+      require(_newCtrl1 != address(0));
       _controller1 = _newCtrl1;
+      return true;
   }
 
-  function setCtrlAddress2(address _newCtrl2) public onlyCtrl2{
+  /// @notice change controller address 2. This function can only be called by the existing controller2
+  /// @param _newCtrl2 The address of the new controller
+  /// @return Whether the setter was successful or not
+  function setCtrlAddress2(address _newCtrl2) external onlyCtrl2 returns (bool){
+      require(_newCtrl2 != address(0));
       _controller2 = _newCtrl2;
+      return true;
   }
 
-  function pause() public onlyCtrlLevel returns (bool){
+  /// @notice Pause the contract. Can only be called by the controllers
+  /// @return Whether the contract was successfully paused or not
+  function pause() external onlyCtrlLevel returns (bool){
     require(_paused);
     _paused = true;
     return true;
   }
 
-  function resume() public onlyCtrlLevel returns (bool){
+  /// @notice Resume the contract. Can only be called by the controllers
+  /// @return Whether the contract was successfully resumed or not
+  function resume() external onlyCtrlLevel returns (bool){
     require(!_paused);
     _paused = true;
     return true;
+  }
+
+  /// @return Whether the contract is paused or not
+  function isActive() external returns (bool){
+    return _paused;
   }
 
 }

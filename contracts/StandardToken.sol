@@ -46,7 +46,7 @@ contract StandardToken{
   }
 
   function totalSupply() public view returns (uint256){
-    return SafeMath.div(_totalSupply, _base**_decimels);
+    return _totalSupply;
   }
 
 }

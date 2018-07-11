@@ -7,7 +7,7 @@ import "./ERC20.sol";
 import "./ERC223.sol";
 import "./ERC223ReceivingContract.sol";
 
-contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC223{
+contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ERC223{
 
   using SafeMath for uint256;
   address private _controller1;
@@ -75,7 +75,6 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 10000), ERC20, ERC2
     _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
     emit Transfer(msg.sender, _to, _value);
     return true;
-
   }
 
   /// @notice send `_value` token to `_to` from `msg.sender`

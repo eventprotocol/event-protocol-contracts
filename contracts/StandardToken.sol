@@ -15,13 +15,13 @@ contract StandardToken{
   string internal _symbol;
   uint8 internal _decimels;
   uint256 internal _totalSupply;
+  uint256 private _base = 10;
 
   constructor (string name, string symbol, uint8 decimels, uint256 totalTokens) internal{
       _name = name;
       _symbol = symbol;
       _decimels = decimels;
-      uint256 base = 10;
-      _totalSupply = SafeMath.mul(totalTokens, base**decimels);
+      _totalSupply = SafeMath.mul(totalTokens, _base**_decimels);
   }
 
   // Getter functions for contract data fields
@@ -38,7 +38,7 @@ contract StandardToken{
   }
 
   function totalSupply() public view returns (uint256){
-    return _totalSupply;
+    return SafeMath.div(_totalSupply, _base**_decimels);
   }
 
 }

@@ -16,12 +16,13 @@ import "./ERC20.sol";
 import "./ERC223.sol";
 import "./ERC223ReceivingContract.sol";
 
-contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ERC223{
+contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, ERC223{
 
   using SafeMath for uint256;
   address private _controller1;
   address private _controller2;
   bool private _paused;
+  uint256 private _numberOfEvents;
 
   // MaxLimit of uint256
   uint256 constant MAX_LIMIT = 2**256-1;
@@ -37,6 +38,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
     _controller2 = _ctrl2;
     _balanceOf[msg.sender] = _totalSupply;
     _paused = false;
+    _numberOfEvents = 0;
   }
 
   modifier onlyCtrlLevel{
@@ -55,12 +57,12 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
   }
 
   modifier isPaused{
-      require(_paused);
+      require(_paused == true);
       _;
   }
 
   modifier isNotPaused{
-      require(!_paused);
+      require(_paused == false);
       _;
   }
 
@@ -181,23 +183,35 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 5000000), ERC20, ER
 
   /// @notice Pause the contract. Can only be called by the controllers
   /// @return Whether the contract was successfully paused or not
-  function pause() external onlyCtrlLevel returns (bool){
-    require(_paused);
+  function pause() external onlyCtrlLevel isNotPaused returns (bool){
     _paused = true;
     return true;
   }
 
   /// @notice Resume the contract. Can only be called by the controllers
   /// @return Whether the contract was successfully resumed or not
-  function resume() external onlyCtrlLevel returns (bool){
-    require(!_paused);
-    _paused = true;
+  function resume() external onlyCtrlLevel isPaused returns (bool){
+    _paused = false;
     return true;
   }
 
   /// @return Whether the contract is paused or not
   function isActive() external view returns (bool){
-    return _paused;
+    return _paused == false;
   }
+
+  /// @notice increment the event count value by 1
+  /// @return Whether the increment is successful
+  function incrementEventCount() external returns (bool){
+    _numberOfEvents++;
+    return true;
+  }
+
+  /// @return The total amount of events registered
+  function getEventCount() external view returns (uint256){
+    return _numberOfEvents;
+  }
+
+
 
 }

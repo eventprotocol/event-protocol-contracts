@@ -25,7 +25,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   uint256 private _numberOfEvents;
 
   // MaxLimit of uint256
-  uint256 constant MAX_LIMIT = 2**256-1;
+  uint256 constant MAX_LIMIT = 2**256 -1;
 
   // Mapping to store addresses and balances
   mapping (address => uint256) internal _balanceOf;
@@ -81,6 +81,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
     require(_value > 0);
     require(_value < MAX_LIMIT);
     require(!isContract(_to));
+    require(_to != address(0));
     require(_allowance[msg.sender][_to] >= _value);
     _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
     _balanceOf[_to] = _balanceOf[_to].add(_value);
@@ -99,6 +100,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
     require(_value < MAX_LIMIT);
     require(_balanceOf[msg.sender] >= _value);
     require(isContract(_to));
+    require(_to != address(0));
     _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
     _balanceOf[_to] = _balanceOf[_to].add(_value);
     _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
@@ -133,6 +135,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   function approve(address _spender, uint256 _value) external isNotPaused returns (bool){
     require(_value > 0);
     require(_value < MAX_LIMIT);
+    require(_spender != address(0));
     _allowance[msg.sender][_spender] = _allowance[msg.sender][_spender].add(_value);
     emit Approval(msg.sender, _spender, _value);
     return true;

@@ -1,4 +1,3 @@
-
 var EventToken = artifacts.require("./EventToken.sol");
 var BigNumber = require('bignumber.js');
 
@@ -139,6 +138,22 @@ contract('Event Token Unit Testing', async (accounts) => {
       return instance.getEventCount.call().then(function(count){
         assert.strictEqual(count.toNumber(), 2, "The event count does not match");
       })
+  })
+
+  it("Test 16: Transfer 1000 tokens from accounts[0] to the deployed contract", async() =>{
+    let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
+    let _balanceInit2 = await instance.balanceOf.call(instance.address);
+    let _amount = 1000*Math.pow(10,18);
+
+    console.log(_balanceInit2.toNumber());
+    await instance.approve(instance.address, _amount, {from : accounts[0]});
+    await instance.transferToContract(instance.address, _amount,["0x12"] ,{from: accounts[0]});
+
+    let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
+    let _balanceFinal2 = await instance.balanceOf.call(instance.address);
+
+    assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
+    assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
   })
 
 });

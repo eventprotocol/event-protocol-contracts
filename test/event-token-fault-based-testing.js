@@ -1,4 +1,5 @@
 var EventToken = artifacts.require("./EventToken.sol");
+var ERC223Contract = artifacts.require("./ERC223ReceivingContract.sol");
 var BigNumber = require('bignumber.js');
 
 import assertRevert from './helpers/assertRevert';
@@ -69,9 +70,51 @@ contract('Event Token Fault Based Testing', async (accounts) => {
       assert.strictEqual(_bool, false, "The contract state does not match");
   })
 
+  it("Test 11: Expected Transaction Revert followed by state check: Proxy transfer", async() =>{
+      let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceInit2 = await instance.balanceOf.call(accounts[2]);
+      let _amount = 1000*Math.pow(10,18);
 
+      await instance.approve(accounts[2], _amount, {from:accounts[0]});
+      await assertRevert(instance.transferFrom(accounts[0], accounts[2], _amount, {from: accounts[1]}));
 
+      let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
 
+      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
+      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+  })
+
+  it("Test 12: Expected Transaction Revert followed by state check: Transfer without sufficient balance", async() =>{
+      let _balanceInit1 = await instance.balanceOf.call(accounts[1]);
+      let _balanceInit2 = await instance.balanceOf.call(accounts[2]);
+      let _amount = 1000*Math.pow(10,18);
+
+      await instance.approve(accounts[2], _amount, {from:accounts[1]});
+      await assertRevert(instance.transfer(accounts[2], _amount, {from:accounts[1]}));
+
+      let _balanceFinal1 = await instance.balanceOf.call(accounts[1]);
+      let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
+
+      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
+      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+  })
+
+  it("Test 13: Expected Transaction Revert followed by state check: Transfer to a contract by mistake", async() =>{
+      let erc223Contract = await ERC223Contract.new({from:accounts[0]});
+      let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceInit2 = await instance.balanceOf.call(erc223Contract.address);
+      let _amount = 1000*Math.pow(10,18);
+
+      await instance.approve(erc223Contract.address, _amount, {from:accounts[0]});
+      await assertRevert(instance.transfer(erc223Contract.address, _amount, {from:accounts[0]}));
+
+      let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceFinal2 = await instance.balanceOf.call(erc223Contract.address);
+
+      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
+      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+  })
 
 
 })

@@ -69,7 +69,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @param _owner The address
   /// @return balance of the of the address
   function balanceOf(address _owner) public view returns (uint256){
-    return _balanceOf[_owner];
+      return _balanceOf[_owner];
   }
 
   /// @notice send `_value` token to `_to` from `msg.sender`
@@ -77,17 +77,17 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @param _value The amount of token to be transferred
   /// @return Whether the transfer was successful or not
   function transfer(address _to, uint256 _value) external isNotPaused returns (bool){
-    require(_balanceOf[msg.sender] >= _value);
-    require(_value > 0);
-    require(_value < MAX_LIMIT);
-    require(!isContract(_to));
-    require(_to != address(0));
-    require(_allowance[msg.sender][_to] >= _value);
-    _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
-    _balanceOf[_to] = _balanceOf[_to].add(_value);
-    _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
-    emit Transfer(msg.sender, _to, _value);
-    return true;
+      require(_balanceOf[msg.sender] >= _value);
+      require(_value > 0);
+      require(_value < MAX_LIMIT);
+      require(!isContract(_to));
+      require(_to != address(0));
+      require(_allowance[msg.sender][_to] >= _value);
+      _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
+      _balanceOf[_to] = _balanceOf[_to].add(_value);
+      _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
+      emit Transfer(msg.sender, _to, _value);
+      return true;
   }
 
   /// @notice send `_value` token to `_to` from `msg.sender`
@@ -96,18 +96,18 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @param _data Data that is encoded along with the transaction
   /// @return Whether the transfer was successful or not
   function transferToContract(address _to, uint256 _value, bytes _data) external isNotPaused returns (bool){
-    require(_value > 0);
-    require(_value < MAX_LIMIT);
-    require(_balanceOf[msg.sender] >= _value);
-    require(isContract(_to));
-    require(_to != address(0));
-    _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
-    _balanceOf[_to] = _balanceOf[_to].add(_value);
-    _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
-    ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
-    _contract.tokenFallback(msg.sender, _value, _data);
-    emit Transfer(msg.sender, _to, _value, _data);
-    return true;
+      require(_value > 0);
+      require(_value < MAX_LIMIT);
+      require(_balanceOf[msg.sender] >= _value);
+      require(isContract(_to));
+      require(_to != address(0));
+      _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
+      _balanceOf[_to] = _balanceOf[_to].add(_value);
+      _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
+      ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
+      _contract.tokenFallback(msg.sender, _value, _data);
+      emit Transfer(msg.sender, _to, _value, _data);
+      return true;
   }
 
   /// @notice send `_value` token to `_to` from `_from` on the condition it is approved by `_from`
@@ -116,16 +116,16 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @param _value The amount of token to be transferred
   /// @return Whether the transfer was successful or not
   function transferFrom(address _from, address _to, uint256 _value) external isNotPaused returns (bool){
-    require(_to != address(0));
-    require(_balanceOf[_from] >= _value);
-    require(_allowance[_from][msg.sender] >= _value);
-    require(_value > 0);
-    require(_value < MAX_LIMIT);
-    _balanceOf[_from] = _balanceOf[_from].sub(_value);
-    _balanceOf[_to] = _balanceOf[_to].add(_value);
-    _allowance[_from][msg.sender] = _allowance[_from][msg.sender].sub(_value);
-    emit Transfer(_from, _to, _value);
-    return true;
+      require(_to != address(0));
+      require(_balanceOf[_from] >= _value);
+      require(_allowance[_from][msg.sender] >= _value);
+      require(_value > 0);
+      require(_value < MAX_LIMIT);
+      _balanceOf[_from] = _balanceOf[_from].sub(_value);
+      _balanceOf[_to] = _balanceOf[_to].add(_value);
+      _allowance[_from][msg.sender] = _allowance[_from][msg.sender].sub(_value);
+      emit Transfer(_from, _to, _value);
+      return true;
   }
 
   /// @notice `msg.sender` approves `_spender` to spend `_value` tokens
@@ -133,19 +133,19 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @param _value The amount of tokens to be approved for transfer
   /// @return Whether the approval was successful or not
   function approve(address _spender, uint256 _value) external isNotPaused returns (bool){
-    require(_value > 0);
-    require(_value < MAX_LIMIT);
-    require(_spender != address(0));
-    _allowance[msg.sender][_spender] = _allowance[msg.sender][_spender].add(_value);
-    emit Approval(msg.sender, _spender, _value);
-    return true;
+      require(_value > 0);
+      require(_value < MAX_LIMIT);
+      require(_spender != address(0));
+      _allowance[msg.sender][_spender] = _allowance[msg.sender][_spender].add(_value);
+      emit Approval(msg.sender, _spender, _value);
+      return true;
   }
 
   /// @param _owner The address of the account owning tokens
   /// @param _spender The address of the account able to transfer the tokens
   /// @return Amount of remaining tokens allowed to spent
   function allowance(address _owner, address _spender) public view returns (uint256){
-    return _allowance[_owner][_spender];
+      return _allowance[_owner][_spender];
   }
 
   /// @param _address The ethereum address to be verified

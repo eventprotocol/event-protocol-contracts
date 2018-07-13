@@ -142,19 +142,35 @@ contract('Event Token Unit Testing', async (accounts) => {
   })
 
   it("Test 16: Transfer 1000 tokens from accounts[0] to the deployed contract", async() =>{
-    let erc223Contract = await ERC223Contract.new({from:accounts[0]});
-    let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
-    let _balanceInit2 = await instance.balanceOf.call(erc223Contract.address);
-    let _amount = 1000*Math.pow(10,18);
+      let erc223Contract = await ERC223Contract.new({from:accounts[0]});
+      let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceInit2 = await instance.balanceOf.call(erc223Contract.address);
+      let _amount = 1000*Math.pow(10,18);
 
-    await instance.approve(erc223Contract.address, _amount, {from : accounts[0]});
-    await instance.transferToContract(erc223Contract.address, _amount, ["0x12"] ,{from: accounts[0]});
+      await instance.approve(erc223Contract.address, _amount, {from : accounts[0]});
+      await instance.transferToContract(erc223Contract.address, _amount, ["0x12"] ,{from: accounts[0]});
 
-    let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
-    let _balanceFinal2 = await instance.balanceOf.call(erc223Contract.address);
+      let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceFinal2 = await instance.balanceOf.call(erc223Contract.address);
 
-    assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
-    assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
+      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
   })
+
+  it("Test 17: Transfer 1000 tokens from accounts[0] to accounts[2] instead of transferring to accounts[1]", async() =>{
+      let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceInit2 = await instance.balanceOf.call(accounts[2]);
+      let _amount = 1000*Math.pow(10,18);
+
+      await instance.approve(accounts[1], _amount, {from : accounts[0]});
+      await instance.transferFrom(accounts[0], accounts[2], _amount, {from: accounts[1]});
+
+      let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
+      let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
+
+      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
+      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+  })
+
 
 });

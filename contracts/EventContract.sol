@@ -153,19 +153,11 @@ contract EventContract{
       require(_eventDate > now);
       require(_cancelRequest[_buyer] == true);
       require(_cancelRequest[_seller] == true);
-      payOutContributors(_buyer);
-      payOutContributors(_seller);
 
       if (_cancellingParty == _buyer){
         uint _sellerCharges = (_cancellationFees[_seller].sub(_buyerAdvanceFee)).add(_escrows[_seller]);
         uint _buyerPayment = _ETContract.balanceOf(_buyer);
-        _ETContract.approve(_eventProtocolAddress, _eventProtocolCharges);
-        _ETContract.transfer(_eventProtocolAddress, _eventProtocolCharges);
-        _ETContract.approve(_seller, _sellerCharges);
-        _ETContract.transfer(_seller, _sellerCharges);
-        _ETContract.approve(_buyer, _buyerPayment);
-        _ETContract.transfer(_seller, _buyerPayment);
-        _eventState = EVENTSTATE.SETTLED;
+        payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
         return true;
       }
 
@@ -210,20 +202,23 @@ contract EventContract{
   }
 
   function resolveContract() internal returns (bool){
-      payOutContributors(_buyer);
-      payOutContributors(_seller);
-
       //Pay balance to buyer (and the escrow amount if any)
       uint _sellerCharges = (_eventPaymentAmount.add(_escrows[_seller])).add(_contributionPoolAmounts[_seller]);
       uint _buyerCharges = _escrows[_buyer].add(_contributionPoolAmounts[_buyer]);
-      _ETContract.approve(_eventProtocolAddress, _eventProtocolCharges);
-      _ETContract.transfer(_eventProtocolAddress, _eventProtocolCharges);
-      _ETContract.approve(_seller, _sellerCharges);
-      _ETContract.transfer(_seller, _sellerCharges);
-      _ETContract.approve(_buyer, _buyerCharges);
-      _ETContract.transfer(_seller, _buyerCharges);
-      _eventState = EVENTSTATE.SETTLED;
+      payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
       return true;
+  }
+
+  function payout(uint256 eventProtocolCharges, uint256 buyerAmount, uint256 sellerAmount){
+      payOutContributors(_buyer);
+      payOutContributors(_seller);
+      _ETContract.approve(_eventProtocolAddress, eventProtocolCharges);
+      _ETContract.transfer(_eventProtocolAddress, eventProtocolCharges);
+      _ETContract.approve(_seller, sellerAmount);
+      _ETContract.transfer(_seller, sellerAmount);
+      _ETContract.approve(_buyer, buyerAmount);
+      _ETContract.transfer(_seller, buyerAmount);
+      _eventState = EVENTSTATE.SETTLED;
   }
 
 

@@ -16,9 +16,11 @@ contract EventContract{
   uint256 private _buyerAdvanceFee;
   mapping(address => uint256) private _cancellationFees;
   address[] private _arbiterAddresses;
-  address[] private _contributerAddresses;
+  address[] private _contributerAddressesBuyer;
+  address[] private _contributerAddressesSeller;
   mapping(address => uint256) private _arbitrationAmounts;
   mapping(address => uint256) private _contributionPoolAmounts;
+  mapping(address => mapping(address => uint256)) private _contributersAcknowledgement;
   uint private _eventPaymentAmount;
   EVENTSTATE private _eventState;
   address private _eventProtocolAddress;
@@ -149,6 +151,8 @@ contract EventContract{
       require(_eventDate > now);
       require(_cancelRequest[_buyer] == true);
       require(_cancelRequest[_seller] == true);
+      payOutContributors(_buyer);
+      payOutContributors(_seller);
 
       //What if the buyer cancelles the event (Seller's cancellation fees should be > advance fee)
       uint _eventProtcolCharges = (_eventPaymentAmount * 5)/100;
@@ -168,20 +172,44 @@ contract EventContract{
 
       // Seller's cancel case will be handled later
       return false;
-
-
   }
 
+  function addContributers(address contributor) public onlyBuyerAndSeller returns (bool){
+      if (msg.sender == _buyer){
+        _contributerAddressesBuyer.push(contributor);
+        return true;
+      }
+      _contributerAddressesSeller.push(contributor);
+      return true;
+  }
 
+  function acknowledgeContributors(address contributor, uint256 _tokens) public onlyBuyerAndSeller returns (bool){
+      require(_contributionPoolAmounts[msg.sender] >= _tokens);
+      _contributersAcknowledgement[msg.sender][contributor] = _tokens;
+      return true;
+  }
 
+  function payOutContributors(address _target) public onlyBuyerAndSeller returns (bool){
+      address _beneficier;
+      if (_target == _buyer){
+        for (uint i = 0; i< _contributerAddressesBuyer.length; i++){
+           _beneficier = _contributerAddressesBuyer[i];
+          _ETContract.approve(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+          _ETContract.transfer(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+        }
+      }
 
+      else{
+        for (i = 0; i< _contributerAddressesBuyer.length; i++){
+          _beneficier = _contributerAddressesSeller[i];
+          _ETContract.approve(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+          _ETContract.transfer(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+        }
+      }
+      return true;
+  }
 
-
-
-
-
-
-
+  
 
 
 

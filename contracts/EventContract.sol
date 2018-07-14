@@ -26,6 +26,7 @@ contract EventContract{
   address private _eventProtocolAddress;
   EventToken private _ETContract;
   address private _cancellingParty;
+  uint256 private _eventProtocolCharges;
 
 
   struct TKN {
@@ -84,10 +85,11 @@ contract EventContract{
       _cancellationFees[_seller] = sellerCancellationFee;
       _contributionPoolAmounts[_buyer] = buyerContributionPoolAmount;
       _contributionPoolAmounts[_seller] = sellerContributionPoolAmount;
-      _eventPaymentAmount = eventPaymentAmount;
       _eventProtocolAddress = eventProtocolAddress;
       _ETContract = EventToken(eventTokenAddress);
       _eventState = EVENTSTATE.NOTACTIVE;
+      _eventProtocolCharges = SafeMath.div(SafeMath.mul(eventPaymentAmount, 5), 100);
+      _eventPaymentAmount = eventPaymentAmount.sub(_eventProtocolCharges);
   }
 
   modifier onlyBuyer{
@@ -154,14 +156,11 @@ contract EventContract{
       payOutContributors(_buyer);
       payOutContributors(_seller);
 
-      //What if the buyer cancelles the event (Seller's cancellation fees should be > advance fee)
-      uint _eventProtcolCharges = (_eventPaymentAmount * 5)/100;
-
       if (_cancellingParty == _buyer){
         uint _sellerCharges = (_cancellationFees[_seller].sub(_buyerAdvanceFee)).add(_escrows[_seller]);
         uint _buyerPayment = _ETContract.balanceOf(_buyer);
-        _ETContract.approve(_eventProtocolAddress, _eventProtcolCharges);
-        _ETContract.transfer(_eventProtocolAddress, _eventProtcolCharges);
+        _ETContract.approve(_eventProtocolAddress, _eventProtocolCharges);
+        _ETContract.transfer(_eventProtocolAddress, _eventProtocolCharges);
         _ETContract.approve(_seller, _sellerCharges);
         _ETContract.transfer(_seller, _sellerCharges);
         _ETContract.approve(_buyer, _buyerPayment);
@@ -186,6 +185,7 @@ contract EventContract{
   function acknowledgeContributors(address contributor, uint256 _tokens) public onlyBuyerAndSeller returns (bool){
       require(_contributionPoolAmounts[msg.sender] >= _tokens);
       _contributersAcknowledgement[msg.sender][contributor] = _tokens;
+      _contributionPoolAmounts[msg.sender].sub(_tokens);
       return true;
   }
 
@@ -209,9 +209,22 @@ contract EventContract{
       return true;
   }
 
-  
+  function resolveContract() internal returns (bool){
+      payOutContributors(_buyer);
+      payOutContributors(_seller);
 
-
+      //Pay balance to buyer (and the escrow amount if any)
+      uint _sellerCharges = (_eventPaymentAmount.add(_escrows[_seller])).add(_contributionPoolAmounts[_seller]);
+      uint _buyerCharges = _escrows[_buyer].add(_contributionPoolAmounts[_buyer]);
+      _ETContract.approve(_eventProtocolAddress, _eventProtocolCharges);
+      _ETContract.transfer(_eventProtocolAddress, _eventProtocolCharges);
+      _ETContract.approve(_seller, _sellerCharges);
+      _ETContract.transfer(_seller, _sellerCharges);
+      _ETContract.approve(_buyer, _buyerCharges);
+      _ETContract.transfer(_seller, _buyerCharges);
+      _eventState = EVENTSTATE.SETTLED;
+      return true;
+  }
 
 
 }

@@ -81,8 +81,11 @@ contract('Event Token Fault Based Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
       let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
 
-      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1);
+      let _bool2 = _balanceFinal2.eq(_balanceInit2);
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
   it("Test 12: Expected Transaction Revert followed by state check: Transfer without sufficient balance", async() =>{
@@ -96,8 +99,11 @@ contract('Event Token Fault Based Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[1]);
       let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
 
-      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1);
+      let _bool2 = _balanceFinal2.eq(_balanceInit2);
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
   it("Test 13: Expected Transaction Revert followed by state check: Transfer to a contract by mistake", async() =>{
@@ -112,8 +118,11 @@ contract('Event Token Fault Based Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
       let _balanceFinal2 = await instance.balanceOf.call(erc223Contract.address);
 
-      assert.strictEqual(_balanceInit1.toNumber(), _balanceFinal1.toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceInit2.toNumber(), _balanceFinal2.toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1);
+      let _bool2 = _balanceFinal2.eq(_balanceInit2);
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
 

@@ -1,5 +1,5 @@
 var EventToken = artifacts.require("./EventToken.sol");
-var ERC223Contract = artifacts.require("./ERC223ReceivingContract.sol");
+var EventContract = artifacts.require("./EventContract.sol");
 var BigNumber = require('bignumber.js');
 
 contract('Event Token Unit Testing', async (accounts) => {
@@ -12,7 +12,8 @@ contract('Event Token Unit Testing', async (accounts) => {
 
   it("Test 1: Expected total supply of tokens: 5000000", async() => {
       return instance.totalSupply.call().then(function(totalSupply) {
-        assert.strictEqual(totalSupply.toNumber(), 500000000*Math.pow(10,18), "5000000 is not the total supply");
+        let _bool = totalSupply.eq(500000000*Math.pow(10,18));
+        assert.strictEqual(_bool, true, "500 million is not the total supply");
     })
   })
 
@@ -36,7 +37,8 @@ contract('Event Token Unit Testing', async (accounts) => {
 
   it("Test 5: Expected balance of the " + accounts[0] + " is 5000000", async() => {
       return instance.balanceOf.call(accounts[0]).then(function(balance){
-        assert.strictEqual(balance.toNumber(), 500000000*Math.pow(10,18), "Balance of accounts[0] is not 10000");
+        let _bool = balance.eq(500000000*Math.pow(10,18));
+        assert.strictEqual(_bool, true, "Balance of accounts[0] is not 10000");
     })
   })
 
@@ -54,7 +56,7 @@ contract('Event Token Unit Testing', async (accounts) => {
 
   it("Test 8: Input address is expected to be an account and not a contract " + accounts[1], async() => {
       return instance.isContract.call(accounts[0]).then(function(bool){
-        assert.ok(!bool, "Account is interpreted as a contract");
+        assert.strictEqual(false, bool, "Account is interpreted as a contract");
       })
   })
 
@@ -69,9 +71,11 @@ contract('Event Token Unit Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
       let _balanceFinal2 = await instance.balanceOf.call(accounts[1]);
 
-      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1.minus(_amount));
+      let _bool2 = _balanceFinal2.eq(_balanceInit2.plus(_amount));
 
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
 
       _balanceInit1 = await instance.balanceOf.call(accounts[1]);
       _balanceInit2 = await instance.balanceOf.call(accounts[2]);
@@ -83,8 +87,11 @@ contract('Event Token Unit Testing', async (accounts) => {
       _balanceFinal1 = await instance.balanceOf.call(accounts[1]);
       _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
 
-      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+      _bool1 = _balanceFinal1.eq(_balanceInit1.minus(_amount));
+      _bool2 = _balanceFinal2.eq(_balanceInit2.plus(_amount));
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
   it("Test 10: Expected allowances should be 1000 and 2000", async() => {
@@ -95,8 +102,11 @@ contract('Event Token Unit Testing', async (accounts) => {
       let allowance1 = await instance.allowance(accounts[0], accounts[1]);
       let allowance2 = await instance.allowance(accounts[1], accounts[2]);
 
-      assert.equal(allowance1.toNumber(), _amount1, "The allowances (1000 ET) for accounts[0] and accounts[1] do not match");
-      assert.equal(allowance2.toNumber(), _amount2, "The allowances (2000 ET) for accounts[1] and accounts[2] do not match");
+      let _bool1 = allowance1.eq(_amount1);
+      let _bool2 = allowance2.eq(_amount2);
+
+      assert.equal(_bool1, true, "The allowances (1000 ET) for accounts[0] and accounts[1] do not match");
+      assert.equal(_bool2, true, "The allowances (2000 ET) for accounts[1] and accounts[2] do not match");
 
   })
 
@@ -142,7 +152,21 @@ contract('Event Token Unit Testing', async (accounts) => {
   })
 
   it("Test 16: Transfer 1000 tokens from accounts[0] to the deployed contract", async() =>{
-      let erc223Contract = await ERC223Contract.new({from:accounts[0]});
+      let erc223Contract = await EventContract.new("SUTD Music Festivel",
+      "Singapore",
+      1543687200,
+      accounts[1],
+      2,
+      30,
+      50,
+      200,
+      250,
+      30,
+      35,
+      1000,
+      accounts[0],
+      instance.address, {from:accounts[0]});
+
       let _balanceInit1 = await instance.balanceOf.call(accounts[0]);
       let _balanceInit2 = await instance.balanceOf.call(erc223Contract.address);
       let _amount = 1000*Math.pow(10,18);
@@ -153,8 +177,11 @@ contract('Event Token Unit Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
       let _balanceFinal2 = await instance.balanceOf.call(erc223Contract.address);
 
-      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1.minus(_amount));
+      let _bool2 = _balanceFinal2.eq(_balanceInit2.plus(_amount));
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
   it("Test 17: Transfer 1000 tokens from accounts[0] to accounts[2] instead of transferring to accounts[1]", async() =>{
@@ -168,8 +195,11 @@ contract('Event Token Unit Testing', async (accounts) => {
       let _balanceFinal1 = await instance.balanceOf.call(accounts[0]);
       let _balanceFinal2 = await instance.balanceOf.call(accounts[2]);
 
-      assert.strictEqual(_balanceFinal1.toNumber(), BigNumber(_balanceInit1.toNumber()).minus(_amount).toNumber(), "The balances of transferer does not match");
-      assert.strictEqual(_balanceFinal2.toNumber(), BigNumber(_balanceInit2.toNumber()).plus(_amount).toNumber(), "The balances of transferee does not match");
+      let _bool1 = _balanceFinal1.eq(_balanceInit1.minus(_amount));
+      let _bool2 = _balanceFinal2.eq(_balanceInit2.plus(_amount));
+
+      assert.strictEqual(_bool1, true, "The balances of transferer does not match");
+      assert.strictEqual(_bool2, true, "The balances of transferee does not match");
   })
 
 

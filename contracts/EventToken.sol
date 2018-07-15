@@ -14,7 +14,7 @@ pragma solidity ^0.4.24;
 import "./StandardToken.sol";
 import "./ERC20.sol";
 import "./ERC223.sol";
-import "./ERC223ReceivingContract.sol";
+import "./EventContract.sol";
 
 contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, ERC223{
 
@@ -104,7 +104,7 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
       _balanceOf[msg.sender] = _balanceOf[msg.sender].sub(_value);
       _balanceOf[_to] = _balanceOf[_to].add(_value);
       _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
-      ERC223ReceivingContract _contract = ERC223ReceivingContract(_to);
+      EventContract _contract = EventContract(_to);
       _contract.tokenFallback(msg.sender, _value, _data);
       emit Transfer(msg.sender, _to, _value, _data);
       return true;

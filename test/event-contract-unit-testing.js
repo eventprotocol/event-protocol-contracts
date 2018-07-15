@@ -36,37 +36,37 @@ contract('Event Protocol Unit testing', async (accounts) => {
 
 
 
-  it("Expected Event Name: SUTD Music Festivel", async() =>{
+  it("Test 1: Expected Event Name: SUTD Music Festivel", async() =>{
       return instance.getEventName.call().then(function(name){
         assert.strictEqual(name, "SUTD Music Festivel", "The event name does not match");
       })
   })
 
-  it("Expected Event Location: Singapore", async() =>{
+  it("Test 2: Expected Event Location: Singapore", async() =>{
       return instance.getEventLocation.call().then(function(name){
         assert.strictEqual(name, "Singapore", "The event location does not match");
       })
   })
 
-  it("Expected Buyer Address: account[3]", async() =>{
+  it("Test 3: Expected Buyer Address: account[2]", async() =>{
       return instance.getBuyer.call().then(function(buyer){
         assert.strictEqual(buyer, accounts[2], "The event buyer does not match");
       })
   })
 
-  it("Expected Seller Address: account[1]", async() =>{
+  it("Test 4: Expected Seller Address: account[1]", async() =>{
       return instance.getSeller.call().then(function(seller){
         assert.strictEqual(seller, accounts[1], "The event buyer does not match");
       })
   })
 
-  it("Expected Token Address", async() =>{
+  it("Test 5: Expected Token Address", async() =>{
       return instance.getTokenAddress.call().then(function(tokenAddr){
         assert.strictEqual(tokenAddr, eventToken.address, "The token address does not match");
       })
   })
 
-  it("Expected buyer escrow amounts: 30", async() =>{
+  it("Test 6: Expected buyer escrow amounts: 30", async() =>{
       let buyer = await instance.getBuyer();
       return instance.getEscrowAmounts.call(buyer).then(function(val){
         let _bool = val.eq(BigNumber(30).times(scalar));
@@ -74,7 +74,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
       })
   })
 
-  it("Expected seller escrow amounts: 50", async() =>{
+  it("Test 7: Expected seller escrow amounts: 50", async() =>{
       let seller = await instance.getSeller();
       return instance.getEscrowAmounts.call(seller).then(function(val){
         let _bool = val.eq(BigNumber(50).times(scalar));
@@ -82,14 +82,14 @@ contract('Event Protocol Unit testing', async (accounts) => {
       })
   })
 
-  it("Expected event payment amount: 1000", async() =>{
+  it("Test 8: Expected event payment amount: 1000", async() =>{
       return instance.getEventPaymentCharges.call().then(function(val){
         let _bool = val.eq(BigNumber(1000).times(scalar));
         assert.strictEqual(_bool, true, "The event payment value does not match");
       })
   })
 
-  it("Expected event protocol charges amount: 50", async() =>{
+  it("Test 9: Expected event protocol charges amount: 50", async() =>{
       let eventPayment = await instance.getEventPaymentCharges();
       let protocolCharges = (eventPayment.times(5)).div(100);
       return instance.getEventProtocolCharges.call().then(function(val){
@@ -98,7 +98,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
       })
   })
 
-  it("Expected Seller Payout: 950", async() => {
+  it("Test 10: Expected Seller Payout: 950", async() => {
       let eventPayment = await instance.getEventPaymentCharges();
       let protocolCharges = await instance.getEventProtocolCharges();
       let sellerPayout = eventPayment.minus(protocolCharges);
@@ -106,7 +106,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
       assert.strictEqual(_bool, true, "Seller payment amount does not match");
   })
 
-  it("Expected contribution pool amount of buyer: 30", async() => {
+  it("Test 11: Expected contribution pool amount of buyer: 30", async() => {
       let buyer = await instance.getBuyer();
       let val = await instance.getContributionPoolAmounts(buyer)
 
@@ -114,39 +114,39 @@ contract('Event Protocol Unit testing', async (accounts) => {
       assert.strictEqual(_bool, true,  "The contribution pool amount of buyer does not match");
   })
 
-  it("Expected contribution pool amount of seller: 35", async() =>{
+  it("Test 12: Expected contribution pool amount of seller: 35", async() =>{
       let seller = await instance.getSeller();
       let val = await instance.getContributionPoolAmounts(seller)
       let _bool = val.eq(BigNumber(35).times(scalar));
       assert.strictEqual(_bool, true, "The contribution pool amount of buyer does not match");
   })
 
-  it("Expected buyer cancellation fee: 250", async() => {
+  it("Test 13: Expected buyer cancellation fee: 250", async() => {
       let val = await instance.getBuyerCancellationFee()
       let _bool = val.eq(BigNumber(250).times(scalar));
       assert.strictEqual(_bool, true, "The buyer cancellation fee does not match");
   })
 
 
-  it("Expected seller advance fee: 250", async() => {
+  it("Test 14: Expected seller advance fee: 250", async() => {
       let val = await instance.getSellerAdvanceFee();
       let _bool = val.eq(BigNumber(200).times(scalar));
       assert.strictEqual(_bool, true, "The seller advance fee does not match");
   })
 
-  it("Expected buyer activation amount: 1060", async() => {
+  it("Test 15: Expected buyer activation amount: 1060", async() => {
       let val = await instance.getBuyerActivationAmount();
       let _bool = val.eq(BigNumber(1060).times(scalar));
       assert.strictEqual(_bool, true, "The buyer ativation fee does not match");
   })
 
-  it("Expected buyer activation amount: 335", async() => {
+  it("Test 16: Expected buyer activation amount: 335", async() => {
       let val = await instance.getSellerActivationAmount();
       let _bool = val.eq(BigNumber(335).times(scalar));
       assert.strictEqual(_bool, true, "The seller ativation fee does not match");
   })
 
-  it("Expected Seller Security deposits: 0 and 1000000", async() =>{
+  it("Test 17: Expected Seller Security deposits: 0 and 1000000", async() =>{
       let secDeposit = await eventToken.allowance(accounts[1], accounts[0]);
       let _bool = secDeposit.eq(0);
       assert.strictEqual(_bool, true, "The security deposit does not match");
@@ -159,19 +159,21 @@ contract('Event Protocol Unit testing', async (accounts) => {
   })
 
   // Check state of event
-  it("Expected Event State: NOTACIVE", async() =>{
+  it("Test 18: Expected Event State: NOTACIVE", async() =>{
       return instance.getEventState.call().then(function(state){
         assert.strictEqual(state.toNumber(), 0, "The event state does not match");
       })
   })
 
   // Change state of EventContract
-  it("Expected contract to be shifted to active state preceded by state check by a single transaction for buyers and sellers", async() =>{
+  it("Test 19: Expected contract to be shifted to active state preceded by state check by a single transaction for buyers and sellers", async() =>{
+      let state = await instance.getEventState.call();
+      assert.strictEqual(state.toNumber(), 0, "The event state does not match");
+
       let buyerActivationAmount = await instance.getBuyerActivationAmount();
       let sellerActivationAmount = await instance.getSellerActivationAmount();
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-
 
       let _balanceInit1 = await eventToken.balanceOf.call(buyer);
       let _balanceInit2 = await eventToken.balanceOf.call(seller);
@@ -180,8 +182,8 @@ contract('Event Protocol Unit testing', async (accounts) => {
       await eventToken.approve(instance.address, buyerActivationAmount, {from: accounts[2]});
       await eventToken.approve(instance.address, sellerActivationAmount, {from: accounts[1]});
 
-      await eventToken.transferToContract(instance.address, buyerActivationAmount, ["0x12"], {from: accounts[2]});
-      await eventToken.transferToContract(instance.address, sellerActivationAmount, ["0x13"], {from:accounts[1]});
+      await eventToken.transferToContract(instance.address, buyerActivationAmount, ["Buyer transfer"], {from: accounts[2]});
+      await eventToken.transferToContract(instance.address, sellerActivationAmount, ["Seller transfer"], {from:accounts[1]});
 
       let _balanceFinal1 = await eventToken.balanceOf.call(buyer);
       let _balanceFinal2 = await eventToken.balanceOf.call(seller);
@@ -200,7 +202,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
       })
   })
 
-  it("Expected contract to be shifted to active state preceded by state check by a two transactions for buyers and sellers", async() =>{
+  it("Test 20: Expected contract to be shifted to active state preceded by state check by a two transactions for buyers and sellers", async() =>{
       let buyerActivationAmount = await instance.getBuyerActivationAmount();
       let sellerActivationAmount = await instance.getSellerActivationAmount();
       let buyer = await instance.getBuyer();
@@ -243,15 +245,4 @@ contract('Event Protocol Unit testing', async (accounts) => {
         assert.strictEqual(state.toNumber(), 1, "The event state does not match");
       })
   })
-
-
-
-
-
-
-
-
-
-
-
 })

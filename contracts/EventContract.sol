@@ -223,6 +223,7 @@ contract EventContract{
 
   function addContributers(address contributor) public onlyBuyerAndSeller returns (bool){
       require(_eventState == EVENTSTATE.ACTIVE);
+      require(_contributionPoolAmounts[msg.sender] > 0);
       if (msg.sender == _buyer){
         _contributerAddressesBuyer.push(contributor);
         return true;
@@ -386,6 +387,14 @@ contract EventContract{
 
   function getContributionAmounts(address target, address contributor) public view returns (uint){
       return _contributersAcknowledgement[target][contributor];
+  }
+
+  function getContributorPoolSize(address target) public view returns (uint){
+      require(target == _buyer || target == _seller);
+      if (target == _buyer){
+        return _contributerAddressesBuyer.length;
+      }
+      return _contributerAddressesSeller.length;
   }
 
   function getEscrowAmounts(address addr) public view returns (uint){

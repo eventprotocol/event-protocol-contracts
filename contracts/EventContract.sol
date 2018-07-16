@@ -437,6 +437,10 @@ contract EventContract{
       return now > _eventDate;
   }
 
+  function testNew() public view returns (uint){
+      return now;
+  }
+
 
 
 }

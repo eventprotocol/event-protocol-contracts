@@ -2,7 +2,7 @@ var EventToken = artifacts.require("./EventToken.sol");
 var EventContract = artifacts.require("./EventContract.sol");
 var BigNumber = require('bignumber.js');
 var id = Date.now();
-var eventTime = Math.round((id + 2000)/1000);
+var eventTime = Math.round((id + 3000)/1000);
 
 contract('Event Protocol State machine testing', async (accounts) => {
   let instance;
@@ -29,22 +29,13 @@ contract('Event Protocol State machine testing', async (accounts) => {
       eventToken.address, {from:accounts[1]});
 
       //Deposit sufficient funds to accounts[1] and accounts[2];
-      let _amount = 1000000*Math.pow(10,18);
-      await eventToken.approve(accounts[1], _amount, {from : accounts[0]});
-      await eventToken.transfer(accounts[1], _amount, {from: accounts[0]});
-
-      await eventToken.approve(accounts[2], _amount, {from : accounts[0]});
-      await eventToken.transfer(accounts[2], _amount, {from: accounts[0]});
-
-
-  })
-
-  beforeEach(async function(){
-      //activate event contract
       let buyerActivationAmount = await instance.getBuyerActivationAmount();
       let sellerActivationAmount = await instance.getSellerActivationAmount();
-      let buyer = await instance.getBuyer();
-      let seller = await instance.getSeller();
+      await eventToken.approve(accounts[1], sellerActivationAmount, {from : accounts[0]});
+      await eventToken.transfer(accounts[1], sellerActivationAmount, {from: accounts[0]});
+
+      await eventToken.approve(accounts[2], buyerActivationAmount, {from : accounts[0]});
+      await eventToken.transfer(accounts[2], buyerActivationAmount, {from: accounts[0]});
 
       await eventToken.approve(instance.address, buyerActivationAmount, {from: accounts[2]});
       await eventToken.approve(instance.address, sellerActivationAmount, {from: accounts[1]});
@@ -53,7 +44,6 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await eventToken.transferToContract(instance.address, sellerActivationAmount, ["0x12"], {from:accounts[1]});
 
   })
-
 
   it("Test 1: Expected successful addition of contributors by both buyer and seller followed by state check", async() =>{
       let buyer = await instance.getBuyer();
@@ -77,7 +67,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool2, true, "The seller contribution pool size does not match");
   })
 
-  it("Test 1: Integration test for event activation, adding contributors, event reporting, acknowledgement of contributors and payout", async() =>{
+  it("Test 2: Integration test for event activation, adding contributors, event reporting, acknowledgement of contributors and payout", async() =>{
 
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
@@ -102,23 +92,10 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await instance.acknowledgeContributors(accounts[7], 20*scalar , {from: accounts[1]})
       await instance.acknowledgeContributors(accounts[8], 5*scalar , {from: accounts[1]})
 
-      async function sleep (time) {
-        return new Promise((resolve) => setTimeout(resolve, time));
-      }
-
-      // Usage!
-      sleep(500000).then(() => {
-        return instance.testThis({from:accounts[4]}).then(() => {
-        return instance.checkEventCompletion({from:accounts[4]}).then(() => {
-          return instance.submitResolveRequest(true, {from:accounts[2]}).then(() => {
-            return  instance.completeResolve(true, {from:accounts[1]})
-          })
-        })
-      });
-
-
-
-
+      var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
+      var prom = wait(2000)  // prom, is a promise
+      var showdone = ()=> instance.checkEventCompletion();
+      prom.then(showdone);
 
   })
 

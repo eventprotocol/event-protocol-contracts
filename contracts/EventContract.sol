@@ -28,6 +28,8 @@ contract EventContract{
   address private _cancellingParty;
   uint256 private _eventProtocolCharges;
 
+  //Helper data function
+  mapping(address => mapping(address => bool)) private _isContributor;
 
   struct TKN {
    address sender;
@@ -220,10 +222,10 @@ contract EventContract{
 
   }
 
-
   function addContributers(address contributor) public onlyBuyerAndSeller returns (bool){
       require(_eventState == EVENTSTATE.ACTIVE);
       require(_contributionPoolAmounts[msg.sender] > 0);
+      _isContributor[msg.sender][contributor] = true;
       if (msg.sender == _buyer){
         _contributerAddressesBuyer.push(contributor);
         return true;
@@ -233,8 +235,10 @@ contract EventContract{
   }
 
   function acknowledgeContributors(address contributor, uint256 _tokens) public onlyBuyerAndSeller returns (bool){
+      require(_eventState != EVENTSTATE.NOTACTIVE || _eventState != EVENTSTATE.POSTPONEMENT || _eventState != EVENTSTATE.SETTLED);
       require(_contributionPoolAmounts[msg.sender] >= _tokens);
-      _contributersAcknowledgement[msg.sender][contributor] = _tokens;
+      require(_isContributor[msg.sender][contributor] = true);
+      _contributersAcknowledgement[msg.sender][contributor] = _contributersAcknowledgement[msg.sender][contributor].add(_tokens);
       _contributionPoolAmounts[msg.sender].sub(_tokens);
       return true;
   }
@@ -410,10 +414,22 @@ contract EventContract{
       return _ETContract.allowance(_seller, address(this));
   }
 
+  function isContributor(address target, address contributor) public view returns (bool){
+      return _isContributor[target][contributor];
+  }
+
+  function checkEventCompletion() public returns (bool){
+      require(_eventDate < now || _eventState == EVENTSTATE.ACTIVE);
+      _eventState = EVENTSTATE.REPORTING;
+  }
+
   function testThis() public view returns (string){
       if (_eventState == EVENTSTATE.ACTIVE){
         return "YEAH";
       }
       return "FUCK";
   }
+
+
+
 }

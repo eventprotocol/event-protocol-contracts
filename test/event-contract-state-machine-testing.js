@@ -73,4 +73,18 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool2, true, "The seller contribution pool size does not match");
   })
 
+  it("Test 1: Expected successful acknowledgement of contributors by both buyer and seller followed by state check", async() =>{
+      await instance.addContributers(accounts[3], {from:accounts[2]});
+      await instance.addContributers(accounts[4], {from:accounts[2]});
+      await instance.addContributers(accounts[5], {from:accounts[2]});
+
+      await instance.addContributers(accounts[6], {from:accounts[1]});
+      await instance.addContributers(accounts[7], {from:accounts[1]});
+      await instance.addContributers(accounts[8], {from:accounts[1]});
+
+      
+
+
+  })
+
 })

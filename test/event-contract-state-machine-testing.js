@@ -1,18 +1,21 @@
 var EventToken = artifacts.require("./EventToken.sol");
 var EventContract = artifacts.require("./EventContract.sol");
 var BigNumber = require('bignumber.js');
+var id = Date.now();
+var eventTime = Math.round((id + 2000)/1000);
 
 contract('Event Protocol State machine testing', async (accounts) => {
   let instance;
   let eventToken;
   let scalar = BigNumber(10).pow(18);
 
+
   // create new smart contract instance before each test method
   beforeEach(async function(){
       eventToken = await EventToken.new(accounts[1], {from:accounts[0]});
       instance = await EventContract.new("SUTD Music Festivel",
       "Singapore",
-      1543687200,
+      eventTime,
       accounts[2],
       2,
       30*Math.pow(10,18),
@@ -37,17 +40,18 @@ contract('Event Protocol State machine testing', async (accounts) => {
   })
 
   beforeEach(async function(){
-    //activate event contract
-    let buyerActivationAmount = await instance.getBuyerActivationAmount();
-    let sellerActivationAmount = await instance.getSellerActivationAmount();
-    let buyer = await instance.getBuyer();
-    let seller = await instance.getSeller();
+      //activate event contract
+      let buyerActivationAmount = await instance.getBuyerActivationAmount();
+      let sellerActivationAmount = await instance.getSellerActivationAmount();
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
 
-    await eventToken.approve(instance.address, buyerActivationAmount, {from: accounts[2]});
-    await eventToken.approve(instance.address, sellerActivationAmount, {from: accounts[1]});
+      await eventToken.approve(instance.address, buyerActivationAmount, {from: accounts[2]});
+      await eventToken.approve(instance.address, sellerActivationAmount, {from: accounts[1]});
 
-    await eventToken.transferToContract(instance.address, buyerActivationAmount, ["0x12"], {from: accounts[2]});
-    await eventToken.transferToContract(instance.address, sellerActivationAmount, ["0x12"], {from:accounts[1]});
+      await eventToken.transferToContract(instance.address, buyerActivationAmount, ["0x12"], {from: accounts[2]});
+      await eventToken.transferToContract(instance.address, sellerActivationAmount, ["0x12"], {from:accounts[1]});
+
   })
 
 
@@ -73,7 +77,12 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool2, true, "The seller contribution pool size does not match");
   })
 
-  it("Test 1: Expected successful acknowledgement of contributors by both buyer and seller followed by state check", async() =>{
+  it("Test 1: Integration test for event activation, adding contributors, event reporting, acknowledgement of contributors and payout", async() =>{
+
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+
+      // add contributors
       await instance.addContributers(accounts[3], {from:accounts[2]});
       await instance.addContributers(accounts[4], {from:accounts[2]});
       await instance.addContributers(accounts[5], {from:accounts[2]});
@@ -82,7 +91,33 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await instance.addContributers(accounts[7], {from:accounts[1]});
       await instance.addContributers(accounts[8], {from:accounts[1]});
 
-      
+
+      // acknowledge contributors (buyer)
+      await instance.acknowledgeContributors(accounts[3], 15*scalar , {from: accounts[2]});
+      await instance.acknowledgeContributors(accounts[4], 10*scalar , {from: accounts[2]})
+      await instance.acknowledgeContributors(accounts[5], 3*scalar , {from: accounts[2]})
+
+      // acknowledge contributors (seller)
+      await instance.acknowledgeContributors(accounts[6], 10*scalar , {from: accounts[1]});
+      await instance.acknowledgeContributors(accounts[7], 20*scalar , {from: accounts[1]})
+      await instance.acknowledgeContributors(accounts[8], 5*scalar , {from: accounts[1]})
+
+      async function sleep (time) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+      }
+
+      // Usage!
+      sleep(500000).then(() => {
+        return instance.testThis({from:accounts[4]}).then(() => {
+        return instance.checkEventCompletion({from:accounts[4]}).then(() => {
+          return instance.submitResolveRequest(true, {from:accounts[2]}).then(() => {
+            return  instance.completeResolve(true, {from:accounts[1]})
+          })
+        })
+      });
+
+
+
 
 
   })

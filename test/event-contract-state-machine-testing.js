@@ -1,18 +1,20 @@
 var EventToken = artifacts.require("./EventToken.sol");
 var EventContract = artifacts.require("./EventContract.sol");
 var BigNumber = require('bignumber.js');
-var id = Date.now();
-var eventTime = Math.round((id + 3000)/1000);
 
 contract('Event Protocol State machine testing', async (accounts) => {
   let instance;
   let eventToken;
   let scalar = BigNumber(10).pow(18);
+  let id;
+  let eventTime;
 
 
   // create new smart contract instance before each test method
   beforeEach(async function(){
       eventToken = await EventToken.new(accounts[1], {from:accounts[0]});
+      id = Date.now();
+      eventTime = Math.round((id + 2000)/1000);
       instance = await EventContract.new("SUTD Music Festivel",
       "Singapore",
       eventTime,
@@ -42,7 +44,6 @@ contract('Event Protocol State machine testing', async (accounts) => {
 
       await eventToken.transferToContract(instance.address, buyerActivationAmount, ["0x12"], {from: accounts[2]});
       await eventToken.transferToContract(instance.address, sellerActivationAmount, ["0x12"], {from:accounts[1]});
-
   })
 
   it("Test 1: Expected successful addition of contributors by both buyer and seller followed by state check", async() =>{
@@ -71,6 +72,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
 
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
+      let state1, state2;
 
       // add contributors
       await instance.addContributers(accounts[3], {from:accounts[2]});
@@ -80,7 +82,6 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await instance.addContributers(accounts[6], {from:accounts[1]});
       await instance.addContributers(accounts[7], {from:accounts[1]});
       await instance.addContributers(accounts[8], {from:accounts[1]});
-
 
       // acknowledge contributors (buyer)
       await instance.acknowledgeContributors(accounts[3], 15*scalar , {from: accounts[2]});
@@ -92,10 +93,21 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await instance.acknowledgeContributors(accounts[7], 20*scalar , {from: accounts[1]})
       await instance.acknowledgeContributors(accounts[8], 5*scalar , {from: accounts[1]})
 
-      var wait = ms => new Promise((r, j)=>setTimeout(r, ms));
-      var prom = wait(2000)  // prom, is a promise
-      var showdone = ()=> instance.checkEventCompletion();
-      prom.then(showdone);
+
+      function pause(milliseconds) {
+      	var dt = new Date();
+      	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
+      }
+
+      state1 = await instance.getEventState();
+
+      pause(3000);
+      await instance.checkEventCompletion();
+
+      state2 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match");
+      assert.strictEqual(state2.toNumber(), 4, "The contract states do not match");
 
   })
 

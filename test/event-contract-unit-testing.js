@@ -122,7 +122,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
   })
 
   it("Test 13: Expected buyer cancellation fee: 250", async() => {
-      let val = await instance.getBuyerCancellationFee()
+      let val = await instance.getsellerCancellationPenalty()
       let _bool = val.eq(BigNumber(250).times(scalar));
       assert.strictEqual(_bool, true, "The buyer cancellation fee does not match");
   })
@@ -137,13 +137,13 @@ contract('Event Protocol Unit testing', async (accounts) => {
   it("Test 15: Expected buyer activation amount: 1060", async() => {
       let val = await instance.getBuyerActivationAmount();
       let _bool = val.eq(BigNumber(1060).times(scalar));
-      assert.strictEqual(_bool, true, "The buyer ativation fee does not match");
+      assert.strictEqual(_bool, true, "The buyer activation fee does not match");
   })
 
   it("Test 16: Expected buyer activation amount: 335", async() => {
       let val = await instance.getSellerActivationAmount();
       let _bool = val.eq(BigNumber(335).times(scalar));
-      assert.strictEqual(_bool, true, "The seller ativation fee does not match");
+      assert.strictEqual(_bool, true, "The seller activation fee does not match");
   })
 
   it("Test 17: Expected Seller Security deposits: 0 and 1000000", async() =>{
@@ -172,6 +172,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
 
       let buyerActivationAmount = await instance.getBuyerActivationAmount();
       let sellerActivationAmount = await instance.getSellerActivationAmount();
+      let sellerAdvanceFee = await instance.getSellerAdvanceFee();
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
 
@@ -190,8 +191,8 @@ contract('Event Protocol Unit testing', async (accounts) => {
       let _balanceFinal3 = await eventToken.balanceOf.call(instance.address);
 
       let _bool1 = _balanceFinal1.eq(_balanceInit1.minus(buyerActivationAmount));
-      let _bool2 = _balanceFinal2.eq(_balanceInit2.minus(sellerActivationAmount));
-      let _bool3 = _balanceFinal3.eq(_balanceInit3.add(buyerActivationAmount).add(sellerActivationAmount));
+      let _bool2 = _balanceFinal2.eq(_balanceInit2.minus(sellerActivationAmount).add(sellerAdvanceFee));
+      let _bool3 = _balanceFinal3.eq(_balanceInit3.add(buyerActivationAmount).add(sellerActivationAmount).minus(sellerAdvanceFee));
 
       assert.strictEqual(_bool1, true, "The buyer balances do not match");
       assert.strictEqual(_bool2, true, "The seller balances do not match");
@@ -210,6 +211,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
 
       let buyerDownPayment = buyerActivationAmount.minus(500);
       let sellerDownPayment = sellerActivationAmount.minus(300);
+      let sellerAdvanceFee = await instance.getSellerAdvanceFee();
 
       let _balanceInit1 = await eventToken.balanceOf.call(buyer);
       let _balanceInit2 = await eventToken.balanceOf.call(seller);
@@ -234,8 +236,8 @@ contract('Event Protocol Unit testing', async (accounts) => {
       let _balanceFinal3 = await eventToken.balanceOf.call(instance.address);
 
       let _bool1 = _balanceFinal1.eq(_balanceInit1.minus(buyerActivationAmount));
-      let _bool2 = _balanceFinal2.eq(_balanceInit2.minus(sellerActivationAmount));
-      let _bool3 = _balanceFinal3.eq(_balanceInit3.add(buyerActivationAmount).add(sellerActivationAmount));
+      let _bool2 = _balanceFinal2.eq(_balanceInit2.minus(sellerActivationAmount).add(sellerAdvanceFee));
+      let _bool3 = _balanceFinal3.eq(_balanceInit3.add(buyerActivationAmount).add(sellerActivationAmount).minus(sellerAdvanceFee));
 
       assert.strictEqual(_bool1, true, "The buyer balances do not match");
       assert.strictEqual(_bool2, true, "The seller balances do not match");

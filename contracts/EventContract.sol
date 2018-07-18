@@ -146,20 +146,12 @@ contract EventContract{
   }
 
   function submitResolveRequest(bool _bool) public onlyBuyerAndSeller returns (bool){
-      //require(_eventState == EVENTSTATE.REPORTING);
-      if (_bool == false){
+      if (_bool == false && _eventDate > now){
         _cancellingParty = msg.sender;
-        if (_eventDate > now){
-          _eventState = EVENTSTATE.CANCELLATION;
-        }
-        else{
-          _eventState = EVENTSTATE.REPORTING;
-        }
+        _eventState = EVENTSTATE.CANCELLATION;
       }
       else{
-        require(_eventDate < now);
         _eventState = EVENTSTATE.REPORTING;
-
       }
       _resolveEvent[msg.sender] = _bool;
       return true;
@@ -213,7 +205,7 @@ contract EventContract{
 
   function completeResolve(bool _bool) public onlyBuyerAndSeller returns (bool){
       require(_eventState == EVENTSTATE.REPORTING);
-      require(_eventDate < now);
+      require(now > _eventDate);
       _resolveEvent[msg.sender] = _bool;
 
       //Check if DISPUTED
@@ -229,6 +221,16 @@ contract EventContract{
       _eventState = EVENTSTATE.DISPUTED;
       return false;
 
+  }
+
+
+  function resolveContract() internal returns (bool){
+      //Pay balance to buyer (and the escrow amount if any)
+      uint _sellerCharges = _eventPaymentAmount.add(_escrows[_seller]).add(_contributionPoolAmounts[_seller]);
+      uint _buyerCharges = _escrows[_buyer].add(_contributionPoolAmounts[_buyer]);
+      payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
+      _eventState = EVENTSTATE.SETTLED;
+      return true;
   }
 
   function addContributers(address contributor) public onlyBuyerAndSeller returns (bool){
@@ -252,34 +254,33 @@ contract EventContract{
       return true;
   }
 
-  function payOutContributors(address _target) public onlyBuyerAndSeller returns (bool){
+  function payOutContributors(address _target) internal returns (bool){
       address _beneficier;
+      uint _val;
       if (_target == _buyer){
         for (uint i = 0; i< _contributerAddressesBuyer.length; i++){
            _beneficier = _contributerAddressesBuyer[i];
-          _ETContract.approve(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
-          _ETContract.transfer(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+           _val = _contributersAcknowledgement[_target][_beneficier];
+           if (_val > 0){
+             _ETContract.approve(_beneficier, _val);
+             _ETContract.transfer(_beneficier, _val);
+           }
         }
       }
 
       else{
         for (i = 0; i< _contributerAddressesBuyer.length; i++){
           _beneficier = _contributerAddressesSeller[i];
-          _ETContract.approve(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
-          _ETContract.transfer(_beneficier, _contributersAcknowledgement[msg.sender][_beneficier]);
+          _val = _contributersAcknowledgement[_target][_beneficier];
+          if (_val > 0){
+            _ETContract.approve(_beneficier, _val);
+            _ETContract.transfer(_beneficier, _val);
+          }
         }
       }
       return true;
   }
 
-  function resolveContract() internal returns (bool){
-      //Pay balance to buyer (and the escrow amount if any)
-      uint _sellerCharges = _eventPaymentAmount.add(_escrows[_seller]).add(_contributionPoolAmounts[_seller]);
-      uint _buyerCharges = _escrows[_buyer].add(_contributionPoolAmounts[_buyer]);
-      payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
-      _eventState = EVENTSTATE.SETTLED;
-      return true;
-  }
 
   function payout(uint256 eventProtocolCharges, uint256 buyerAmount, uint256 sellerAmount) internal returns (bool){
       payOutContributors(_buyer);
@@ -428,7 +429,7 @@ contract EventContract{
   }
 
   function checkEventCompletion() public returns (bool){
-      require(now > _eventDate);
+      require(now > _eventDate && _eventState == EVENTSTATE.ACTIVE);
       _eventState = EVENTSTATE.REPORTING;
       return true;
   }

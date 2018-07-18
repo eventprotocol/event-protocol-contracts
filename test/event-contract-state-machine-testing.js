@@ -27,7 +27,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
       30*Math.pow(10,18),
       35*Math.pow(10,18),
       1000*Math.pow(10,18),
-      accounts[0],
+      accounts[9],
       eventToken.address, {from:accounts[1]});
 
       //Deposit sufficient funds to accounts[1] and accounts[2];
@@ -93,22 +93,59 @@ contract('Event Protocol State machine testing', async (accounts) => {
       await instance.acknowledgeContributors(accounts[7], 20*scalar , {from: accounts[1]})
       await instance.acknowledgeContributors(accounts[8], 5*scalar , {from: accounts[1]})
 
-
       function pause(milliseconds) {
       	var dt = new Date();
       	while ((new Date()) - dt <= milliseconds) { /* Do nothing */ }
       }
 
+      // Once the event date has passed, change event state from ACTIVE => REPORTING
       state1 = await instance.getEventState();
-
       pause(3000);
+
       await instance.checkEventCompletion();
-
       state2 = await instance.getEventState();
-
       assert.strictEqual(state1.toNumber(), 1, "The contract states do not match");
       assert.strictEqual(state2.toNumber(), 4, "The contract states do not match");
 
+      // Resolve event
+      await instance.submitResolveRequest(true, {from:accounts[1]});
+      await instance.completeResolve(true, {from:accounts[2]});
+
+      let balance0 = await eventToken.balanceOf(accounts[9]); //50 is expected
+      let balance1 = await eventToken.balanceOf(accounts[1]); //1000 is expected
+      let balance2 = await eventToken.balanceOf(accounts[2]); //32 is expected
+
+      let balance3 = await eventToken.balanceOf(accounts[3]); //15 is expected
+      let balance4 = await eventToken.balanceOf(accounts[4]); //10 is expected
+      let balance5 = await eventToken.balanceOf(accounts[5]); //3 is expected
+
+      let balance6 = await eventToken.balanceOf(accounts[6]); //10 is expected
+      let balance7 = await eventToken.balanceOf(accounts[7]); //20 is expected
+      let balance8 = await eventToken.balanceOf(accounts[8]); //5 is expected
+
+      let _bool0 = balance0.eq(BigNumber(50).times(scalar));
+      let _bool1 = balance1.eq(BigNumber(1000).times(scalar));
+      let _bool2 = balance2.eq(BigNumber(32).times(scalar));
+
+      let _bool3 = balance3.eq(BigNumber(15).times(scalar));
+      let _bool4 = balance4.eq(BigNumber(10).times(scalar));
+      let _bool5 = balance5.eq(BigNumber(3).times(scalar));
+
+      let _bool6 = balance6.eq(BigNumber(10).times(scalar));
+      let _bool7 = balance7.eq(BigNumber(20).times(scalar));
+      let _bool8 = balance8.eq(BigNumber(5).times(scalar));
+
+      assert.strictEqual(_bool0, true, "Event protocol account balances do not match");
+      assert.strictEqual(_bool1, true, "Seller account balances do not match");
+      assert.strictEqual(_bool2, true, "Buyer account balances do not match");
+
+      assert.strictEqual(_bool3, true, "Balance of accounts[3] does not match");
+      assert.strictEqual(_bool4, true, "Balance of accounts[4] does not match");
+      assert.strictEqual(_bool5, true, "Balance of accounts[5] does not match");
+
+      assert.strictEqual(_bool6, true, "Balance of accounts[6] does not match");
+      assert.strictEqual(_bool7, true, "Balance of accounts[7] does not match");
+      assert.strictEqual(_bool8, true, "Balance of accounts[8] does not match");
   })
 
 })

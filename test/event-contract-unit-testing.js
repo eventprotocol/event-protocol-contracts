@@ -22,7 +22,7 @@ contract('Event Protocol Unit testing', async (accounts) => {
       30*Math.pow(10,18),
       35*Math.pow(10,18),
       1000*Math.pow(10,18),
-      accounts[0],
+      accounts[9],
       eventToken.address, {from:accounts[1]});
 
       //Deposit sufficient funds to accounts[1] and accounts[2];

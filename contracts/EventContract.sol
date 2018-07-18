@@ -14,7 +14,7 @@ contract EventContract{
   uint8 private _noOfAllowedPostponements;
   mapping(address => uint256) private _escrows;
   uint256 private _sellerAdvanceFee;
-  uint256 private _buyerCancellationFee;
+  uint256 private _sellerCancellationPenalty;
   address[] private _arbiterAddressesBuyer;
   address[] private _arbiterAddressesSeller;
   address[] private _contributerAddressesBuyer;
@@ -42,7 +42,7 @@ contract EventContract{
   TKN[] _transactionData;
 
   mapping(uint => mapping(address => bool)) private _postPoneRequest;
-  mapping(address => bool) private _resolveEvent;
+  mapping(address => uint8) private _resolveEvent;
 
   constructor (string eventName,
     string eventLocation,
@@ -52,7 +52,7 @@ contract EventContract{
     uint buyerEscrow,
     uint sellerEscrow,
     uint sellerAdvanceFee,
-    uint buyerCancellationFee,
+    uint sellerCancellationPenalty,
     uint buyerContributionPoolAmount,
     uint sellerContributionPoolAmount,
     uint eventPaymentAmount,
@@ -65,7 +65,7 @@ contract EventContract{
       require(buyerEscrow > 0);
       require(sellerEscrow > 0);
       require(sellerAdvanceFee > 0);
-      require(buyerCancellationFee > 0);
+      require(sellerCancellationPenalty > 0);
       require(buyerContributionPoolAmount > 0);
       require(sellerContributionPoolAmount > 0);
       require(eventPaymentAmount > 0);
@@ -79,7 +79,7 @@ contract EventContract{
       _escrows[_buyer] = buyerEscrow;
       _escrows[_seller] = sellerEscrow;
       _sellerAdvanceFee = sellerAdvanceFee;
-      _buyerCancellationFee = buyerCancellationFee;
+      _sellerCancellationPenalty = sellerCancellationPenalty;
       _contributionPoolAmounts[_buyer] = buyerContributionPoolAmount;
       _contributionPoolAmounts[_seller] = sellerContributionPoolAmount;
       _eventProtocolAddress = eventProtocolAddress;
@@ -117,15 +117,18 @@ contract EventContract{
 
       if(_transferredAmounts[_buyer] >= getBuyerActivationAmount() && _transferredAmounts[_seller] >= getSellerActivationAmount()){
         _eventState = EVENTSTATE.ACTIVE;
+        _ETContract.approve(_seller, _sellerAdvanceFee);
+        _ETContract.transfer(_seller, _sellerAdvanceFee);
+        _eventPaymentAmount = _eventPaymentAmount.sub(_sellerAdvanceFee);
       }
   }
 
   function getBuyerActivationAmount() public view returns (uint){
-      return _escrows[_buyer].add(getEventPaymentCharges()).add(_contributionPoolAmounts[_buyer]);
+      return _escrows[_buyer].add(_eventPaymentAmount).add(_eventProtocolCharges).add(_contributionPoolAmounts[_buyer]);
   }
 
   function getSellerActivationAmount() public view returns (uint){
-      return _escrows[_seller].add(_contributionPoolAmounts[_seller]).add(_buyerCancellationFee);
+      return _escrows[_seller].add(_contributionPoolAmounts[_seller]).add(_sellerCancellationPenalty);
   }
 
   function submitPostponeRequest(uint newEventDate) public onlyBuyerAndSeller returns (bool){
@@ -145,35 +148,32 @@ contract EventContract{
       return true;
   }
 
-  function submitResolveRequest(bool _bool) public onlyBuyerAndSeller returns (bool){
-      if (_bool == false && _eventDate > now){
+  function submitResolveRequest(uint8 val) public onlyBuyerAndSeller returns (bool){
+      if (val == 2 && _eventDate > now){
         _cancellingParty = msg.sender;
         _eventState = EVENTSTATE.CANCELLATION;
       }
       else{
         _eventState = EVENTSTATE.REPORTING;
       }
-      _resolveEvent[msg.sender] = _bool;
+      _resolveEvent[msg.sender] = val;
       return true;
-
   }
 
   function acknowledgeCancelRequest() public onlyBuyerAndSeller returns (bool){
       require(_eventState == EVENTSTATE.CANCELLATION);
       require(_eventDate > now);
-      _resolveEvent[msg.sender] = false;
+      _resolveEvent[msg.sender] = 2;
       cancelEvent();
   }
 
   function cancelEvent() internal returns (bool){
-      require(_eventState == EVENTSTATE.CANCELLATION);
-      require(_eventDate > now);
-      require(_resolveEvent[_buyer] == false);
-      require(_resolveEvent[_seller] == false);
+      require(_resolveEvent[_buyer] == 2);
+      require(_resolveEvent[_seller] == 2);
 
       // If buyer cancels the event, the advance payment will be vested with the seller
       if (_cancellingParty == _buyer){
-        uint _sellerCharges = _escrows[_seller].add(_contributionPoolAmounts[_seller]);
+        uint _sellerCharges = _escrows[_seller].add(_contributionPoolAmounts[_seller]).add(_sellerCancellationPenalty);
         uint _buyerCharges = _eventPaymentAmount.add(_escrows[_buyer]).add(_contributionPoolAmounts[_buyer]);
         payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
       }
@@ -183,7 +183,7 @@ contract EventContract{
         uint _securityDepositSeller = _ETContract.allowance(_seller, address(this));
         if (_sellerAdvanceFee > _escrows[_seller]){
           uint _delta = _sellerAdvanceFee.sub(_escrows[_seller]);
-          payout(_eventProtocolCharges, _escrows[_seller].add(_buyerCancellationFee), 0);
+          payout(_eventProtocolCharges, _escrows[_seller].add(_sellerCancellationPenalty), 0);
 
           if (_delta < _securityDepositSeller){
             _ETContract.transferFrom(_seller, _buyer, _delta);
@@ -195,7 +195,7 @@ contract EventContract{
         }
         else{
           _escrows[_seller] = _escrows[_seller].sub(_sellerAdvanceFee);
-          payout(_eventProtocolCharges, _sellerAdvanceFee.add(_buyerCancellationFee), _escrows[_seller]);
+          payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty), _escrows[_seller]);
         }
       }
 
@@ -203,14 +203,14 @@ contract EventContract{
       return true;
   }
 
-  function completeResolve(bool _bool) public onlyBuyerAndSeller returns (bool){
+  function completeResolve(uint8 val) public onlyBuyerAndSeller returns (bool){
       require(_eventState == EVENTSTATE.REPORTING);
       require(now > _eventDate);
-      _resolveEvent[msg.sender] = _bool;
+      _resolveEvent[msg.sender] = val;
 
       //Check if DISPUTED
       if (_resolveEvent[_buyer] == _resolveEvent[_seller]){
-        if (_resolveEvent[_buyer] == true){
+        if (_resolveEvent[_buyer] == 1){
           resolveContract();
         }
         else{
@@ -226,7 +226,7 @@ contract EventContract{
 
   function resolveContract() internal returns (bool){
       //Pay balance to buyer (and the escrow amount if any)
-      uint _sellerCharges = _eventPaymentAmount.add(_escrows[_seller]).add(_contributionPoolAmounts[_seller]);
+      uint _sellerCharges = _eventPaymentAmount.add(_escrows[_seller]).add(_contributionPoolAmounts[_seller]).add(_sellerCancellationPenalty);
       uint _buyerCharges = _escrows[_buyer].add(_contributionPoolAmounts[_buyer]);
       payout(_eventProtocolCharges, _buyerCharges, _sellerCharges);
       _eventState = EVENTSTATE.SETTLED;
@@ -285,18 +285,25 @@ contract EventContract{
   function payout(uint256 eventProtocolCharges, uint256 buyerAmount, uint256 sellerAmount) internal returns (bool){
       payOutContributors(_buyer);
       payOutContributors(_seller);
+
       _ETContract.approve(_eventProtocolAddress, eventProtocolCharges);
       _ETContract.transfer(_eventProtocolAddress, eventProtocolCharges);
-      _ETContract.approve(_seller, sellerAmount);
-      _ETContract.transfer(_seller, sellerAmount);
-      _ETContract.approve(_buyer, buyerAmount);
-      _ETContract.transfer(_buyer, buyerAmount);
+
+      if (buyerAmount > 0){
+        _ETContract.approve(_buyer, buyerAmount);
+        _ETContract.transfer(_buyer, buyerAmount);
+      }
+
+      if (sellerAmount > 0){
+        _ETContract.approve(_seller, sellerAmount);
+        _ETContract.transfer(_seller, sellerAmount);
+      }
       return true;
   }
 
 
-  function addArbiters(address arbiter, bool _bool) public returns (bool){
-      if (_bool == _resolveEvent[_buyer]){
+  function addArbiters(address arbiter, uint val) public returns (bool){
+      if (val == _resolveEvent[_buyer]){
         _arbiterAddressesBuyer.push(arbiter);
       }
       else{
@@ -311,7 +318,7 @@ contract EventContract{
 
             if (_sellerAdvanceFee > _sellerEscrowHalf){
               uint _delta = _sellerAdvanceFee.sub(_sellerEscrowHalf);
-              payout(_eventProtocolCharges, _sellerEscrowHalf.add(_buyerCancellationFee).add(_contributionPoolAmounts[_buyer]), _contributionPoolAmounts[_seller]);
+              payout(_eventProtocolCharges, _sellerEscrowHalf.add(_sellerCancellationPenalty).add(_contributionPoolAmounts[_buyer]), _contributionPoolAmounts[_seller]);
 
               if (_delta < _securityDepositSeller){
                 _ETContract.transferFrom(_seller, _buyer, _delta);
@@ -322,7 +329,7 @@ contract EventContract{
             }
             else{
               _escrows[_seller] = _escrows[_seller].sub(_sellerAdvanceFee).sub(_sellerEscrowHalf);
-              payout(_eventProtocolCharges, _sellerAdvanceFee.add(_buyerCancellationFee).add(_sellerEscrowHalf).add(_contributionPoolAmounts[_buyer]), _escrows[_seller].add(_contributionPoolAmounts[_seller]));
+              payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty).add(_sellerEscrowHalf).add(_contributionPoolAmounts[_buyer]), _escrows[_seller].add(_contributionPoolAmounts[_seller]));
             }
 
             for (uint i = 0; i< _arbiterAddressesSeller.length; i++){
@@ -374,8 +381,8 @@ contract EventContract{
       return _sellerAdvanceFee;
   }
 
-  function getBuyerCancellationFee() public view returns (uint){
-      return _buyerCancellationFee;
+  function getsellerCancellationPenalty() public view returns (uint){
+      return _sellerCancellationPenalty;
   }
 
   function getEventCreationDate() public view returns (uint){

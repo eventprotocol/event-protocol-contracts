@@ -234,4 +234,46 @@ contract('Event Protocol State machine testing', async (accounts) => {
 
   })
 
+  it("Test 4: Integration test for adding contributors, acknowledging contributors and cancellation of event by seller", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3;
+
+      // add contributors (buyer)
+      await instance.addContributers(accounts[3], {from:accounts[2]});
+      await instance.addContributers(accounts[4], {from:accounts[2]});
+      await instance.addContributers(accounts[5], {from:accounts[2]});
+
+      // add contributors (seller)
+      await instance.addContributers(accounts[6], {from:accounts[1]});
+      await instance.addContributers(accounts[7], {from:accounts[1]});
+      await instance.addContributers(accounts[8], {from:accounts[1]});
+
+      // acknowledge contributors (buyer)
+      await instance.acknowledgeContributors(accounts[3], 10*scalar , {from: accounts[2]});
+      await instance.acknowledgeContributors(accounts[4], 12*scalar , {from: accounts[2]})
+      await instance.acknowledgeContributors(accounts[5], 5*scalar , {from: accounts[2]})
+
+      // acknowledge contributors (seller)
+      await instance.acknowledgeContributors(accounts[6], 7*scalar , {from: accounts[1]});
+      await instance.acknowledgeContributors(accounts[7], 15*scalar , {from: accounts[1]})
+      await instance.acknowledgeContributors(accounts[8], 3*scalar , {from: accounts[1]})
+
+      // Once the event date has passed, change event state from ACTIVE => REPORTING
+      state1 = await instance.getEventState();
+
+      // Submit Cancellation request
+      await instance.submitResolveRequest(2, {from:accounts[1]});
+      state2 = await instance.getEventState();
+
+      // Acknowledge Cancellation request
+      await instance.acknowledgeCancelRequest({from:accounts[2]});
+      state3 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 3, "The contract states do not match (Expected CANCELLATION)");
+      assert.strictEqual(state3.toNumber(), 6, "The contract states do not match (Expected SETTLED)");
+
+  })
+
 })

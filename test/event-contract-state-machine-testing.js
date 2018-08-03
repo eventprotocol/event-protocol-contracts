@@ -274,6 +274,45 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(state2.toNumber(), 3, "The contract states do not match (Expected CANCELLATION)");
       assert.strictEqual(state3.toNumber(), 6, "The contract states do not match (Expected SETTLED)");
 
+      // Check balances
+      let balance0 = await eventToken.balanceOf(accounts[9]); //
+      let balance1 = await eventToken.balanceOf(accounts[1]); //
+      let balance2 = await eventToken.balanceOf(accounts[2]); //
+
+      let balance3 = await eventToken.balanceOf(accounts[3]); //10 is expected
+      let balance4 = await eventToken.balanceOf(accounts[4]); //12 is expected
+      let balance5 = await eventToken.balanceOf(accounts[5]); //5 is expected
+
+      let balance6 = await eventToken.balanceOf(accounts[6]); //7 is expected
+      let balance7 = await eventToken.balanceOf(accounts[7]); //15 is expected
+      let balance8 = await eventToken.balanceOf(accounts[8]); //3 is expected
+
+      let _bool0 = balance0.eq(BigNumber(50).times(scalar));
+      let _bool1 = balance1.eq(BigNumber(210).times(scalar));
+      let _bool2 = balance2.eq(BigNumber(1053).times(scalar));
+
+      let _bool3 = balance3.eq(BigNumber(10).times(scalar));
+      let _bool4 = balance4.eq(BigNumber(12).times(scalar));
+      let _bool5 = balance5.eq(BigNumber(5).times(scalar));
+
+      let _bool6 = balance6.eq(BigNumber(7).times(scalar));
+      let _bool7 = balance7.eq(BigNumber(15).times(scalar));
+      let _bool8 = balance8.eq(BigNumber(3).times(scalar));
+
+      console.log(balance0, balance1, balance2, balance3, balance4, balance5, balance6, balance7, balance8);
+
+      assert.strictEqual(_bool0, true, "Event protocol account balances do not match");
+      assert.strictEqual(_bool1, true, "Seller account balances do not match");
+      assert.strictEqual(_bool2, true, "Buyer account balances do not match");
+
+      assert.strictEqual(_bool3, true, "Balance of accounts[3] does not match");
+      assert.strictEqual(_bool4, true, "Balance of accounts[4] does not match");
+      assert.strictEqual(_bool5, true, "Balance of accounts[5] does not match");
+
+      assert.strictEqual(_bool6, true, "Balance of accounts[6] does not match");
+      assert.strictEqual(_bool7, true, "Balance of accounts[7] does not match");
+      assert.strictEqual(_bool8, true, "Balance of accounts[8] does not match");
+
   })
 
 })

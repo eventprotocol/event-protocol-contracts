@@ -183,7 +183,7 @@ contract EventContract{
         uint _securityDepositSeller = _ETContract.allowance(_seller, address(this));
         if (_sellerAdvanceFee > _escrows[_seller]){
           uint _delta = _sellerAdvanceFee.sub(_escrows[_seller]);
-          payout(_eventProtocolCharges, _escrows[_seller].add(_sellerCancellationPenalty), 0);
+          payout(_eventProtocolCharges, _escrows[_seller].add(_sellerCancellationPenalty).add(_eventPaymentAmount).add(_contributionPoolAmounts[_buyer]), _contributionPoolAmounts[_seller]);
 
           if (_delta < _securityDepositSeller){
             _ETContract.transferFrom(_seller, _buyer, _delta);
@@ -195,7 +195,7 @@ contract EventContract{
         }
         else{
           _escrows[_seller] = _escrows[_seller].sub(_sellerAdvanceFee);
-          payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty), _escrows[_seller]);
+          payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty).add(_contributionPoolAmounts[_buyer]), _escrows[_seller].add(_contributionPoolAmounts[_seller]));
         }
       }
 

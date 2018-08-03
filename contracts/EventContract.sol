@@ -188,6 +188,7 @@ contract EventContract{
           if (_delta < _securityDepositSeller){
             _ETContract.transferFrom(_seller, _buyer, _delta);
           }
+          //Security deposit has to be greater than 0
           else if (_securityDepositSeller > 0){
             _ETContract.transferFrom(_seller, _buyer, _securityDepositSeller);
           }

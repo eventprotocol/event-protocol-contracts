@@ -275,9 +275,9 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(state3.toNumber(), 6, "The contract states do not match (Expected SETTLED)");
 
       // Check balances
-      let balance0 = await eventToken.balanceOf(accounts[9]); //
-      let balance1 = await eventToken.balanceOf(accounts[1]); //
-      let balance2 = await eventToken.balanceOf(accounts[2]); //
+      let balance0 = await eventToken.balanceOf(accounts[9]); //50 is expected
+      let balance1 = await eventToken.balanceOf(accounts[1]); //210 is expected
+      let balance2 = await eventToken.balanceOf(accounts[2]); //1053 is expected
 
       let balance3 = await eventToken.balanceOf(accounts[3]); //10 is expected
       let balance4 = await eventToken.balanceOf(accounts[4]); //12 is expected
@@ -311,10 +311,9 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool7, true, "Balance of accounts[7] does not match");
       assert.strictEqual(_bool8, true, "Balance of accounts[8] does not match");
 
-      // let contractBalance = await eventToken.balanceOf(eventToken.address);
-      // console.log(contractBalance);
-      // let _bool9 = contractBalance.eq(0);
-      // assert.strictEqual(_bool9, true, "The contract balances do not match");
+      let contractBalance = await eventToken.balanceOf(eventToken.address);
+      let _bool9 = contractBalance.eq(0);
+      assert.strictEqual(_bool9, true, "The contract balances do not match");
 
   })
 

@@ -299,8 +299,6 @@ contract('Event Protocol State machine testing', async (accounts) => {
       let _bool7 = balance7.eq(BigNumber(15).times(scalar));
       let _bool8 = balance8.eq(BigNumber(3).times(scalar));
 
-      console.log(balance0, balance1, balance2, balance3, balance4, balance5, balance6, balance7, balance8);
-
       assert.strictEqual(_bool0, true, "Event protocol account balances do not match");
       assert.strictEqual(_bool1, true, "Seller account balances do not match");
       assert.strictEqual(_bool2, true, "Buyer account balances do not match");
@@ -312,6 +310,11 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool6, true, "Balance of accounts[6] does not match");
       assert.strictEqual(_bool7, true, "Balance of accounts[7] does not match");
       assert.strictEqual(_bool8, true, "Balance of accounts[8] does not match");
+
+      // let contractBalance = await eventToken.balanceOf(eventToken.address);
+      // console.log(contractBalance);
+      // let _bool9 = contractBalance.eq(0);
+      // assert.strictEqual(_bool9, true, "The contract balances do not match");
 
   })
 

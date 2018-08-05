@@ -19,7 +19,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
   beforeEach(async function(){
       eventToken = await EventToken.new(accounts[1], {from:accounts[0]});
       id = Date.now();
-      eventTime = Math.round((id + 2000)/1000);
+      eventTime = Math.round((id + 3000)/1000);
       instance = await EventContract.new("SUTD Music Festivel",
       "Singapore",
       eventTime,
@@ -103,7 +103,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
 
       // Once the event date has passed, change event state from ACTIVE => REPORTING
       state1 = await instance.getEventState();
-      pause(3000);
+      pause(4000);
 
       await instance.checkEventCompletion();
       state2 = await instance.getEventState();
@@ -189,6 +189,7 @@ contract('Event Protocol State machine testing', async (accounts) => {
 
       // Acknowledge Cancellation request
       await instance.acknowledgeCancelRequest({from:accounts[1]});
+      
       state3 = await instance.getEventState();
 
       assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");

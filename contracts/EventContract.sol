@@ -132,18 +132,19 @@ contract EventContract{
   }
 
   function submitPostponeRequest(uint newEventDate) public onlyBuyerAndSeller returns (bool){
-      require(_noOfAllowedPostponements >0);
+      require(_eventDate < newEventDate);
+      require(_eventState == EVENTSTATE.ACTIVE || _eventState == EVENTSTATE.POSTPONEMENT);
       _postPoneRequest[newEventDate][msg.sender] = true;
       _eventState = EVENTSTATE.POSTPONEMENT;
-      postPoneEvent(newEventDate);
+      if (_postPoneRequest[newEventDate][_buyer] == true && _postPoneRequest[newEventDate][_seller] == true){
+        postPoneEvent(newEventDate);
+      }
   }
 
   function postPoneEvent(uint newEventDate) internal returns (bool){
-      require(_postPoneRequest[newEventDate][_buyer] == true);
-      require(_postPoneRequest[newEventDate][_seller] == true);
       _eventDate = newEventDate;
-      _noOfAllowedPostponements--;
-      require(_noOfAllowedPostponements >0);
+      require(_noOfAllowedPostponements > 0);
+      _noOfAllowedPostponements = _noOfAllowedPostponements -1;
       _eventState = EVENTSTATE.ACTIVE;
       return true;
   }

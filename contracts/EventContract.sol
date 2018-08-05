@@ -139,6 +139,7 @@ contract EventContract{
       if (_postPoneRequest[newEventDate][_buyer] == true && _postPoneRequest[newEventDate][_seller] == true){
         postPoneEvent(newEventDate);
       }
+      return true;
   }
 
   function postPoneEvent(uint newEventDate) internal returns (bool){
@@ -154,6 +155,7 @@ contract EventContract{
         _cancellingParty = msg.sender;
         _eventState = EVENTSTATE.CANCELLATION;
       }
+
       else{
         _eventState = EVENTSTATE.REPORTING;
       }
@@ -304,54 +306,66 @@ contract EventContract{
   }
 
 
-  function addArbiters(address arbiter, uint val) public returns (bool){
+  function addArbiters(uint val) public returns (bool){
+      address arbiter = msg.sender;
+
       if (val == _resolveEvent[_buyer]){
         _arbiterAddressesBuyer.push(arbiter);
       }
       else{
         _arbiterAddressesSeller.push(arbiter);
       }
-      if (_arbiterAddressesSeller.length.add(_arbiterAddressesSeller.length) == 5){
-        if (_arbiterAddressesBuyer.length > _arbiterAddressesSeller.length){
-            // Buyer wins here (So advance, 50% of escrow of seller and cancellation fees for buyer rewarded)
-            uint _securityDepositSeller = getSellerSecurityDeposit();
-            uint arbiterCharges = SafeMath.div(_escrows[_seller], _arbiterAddressesBuyer.length);
-            uint _sellerEscrowHalf = SafeMath.div(_escrows[_seller], 2);
 
-            if (_sellerAdvanceFee > _sellerEscrowHalf){
-              uint _delta = _sellerAdvanceFee.sub(_sellerEscrowHalf);
-              payout(_eventProtocolCharges, _sellerEscrowHalf.add(_sellerCancellationPenalty).add(_contributionPoolAmounts[_buyer]), _contributionPoolAmounts[_seller]);
+      if (_arbiterAddressesBuyer.length.add(_arbiterAddressesSeller.length) == 5){
+        makeArbitrationDecision();
+      }
+      _eventState = EVENTSTATE.SETTLED;
+      return true;
+  }
 
-              if (_delta < _securityDepositSeller){
-                _ETContract.transferFrom(_seller, _buyer, _delta);
-              }
-              else{
-                _ETContract.transferFrom(_seller, _buyer, _securityDepositSeller);
-              }
+  function makeArbitrationDecision() internal returns (bool){
+      if (_arbiterAddressesBuyer.length > _arbiterAddressesSeller.length){
+          // Buyer wins here (So advance, 50% of escrow of seller and cancellation fees for buyer rewarded)
+          uint _securityDepositSeller = _ETContract.allowance(_seller, address(this));
+          uint _sellerEscrowHalf = SafeMath.div(_escrows[_seller], 2);
+          uint arbiterCharges = SafeMath.div(_sellerEscrowHalf, _arbiterAddressesBuyer.length);
+
+          if (_sellerAdvanceFee > _sellerEscrowHalf){
+            uint _delta = _sellerAdvanceFee.sub(_sellerEscrowHalf);
+            payout(_eventProtocolCharges, _sellerEscrowHalf.add(_sellerCancellationPenalty).add(_contributionPoolAmounts[_buyer]).add(_eventPaymentAmount), _contributionPoolAmounts[_seller]);
+
+            if (_delta < _securityDepositSeller){
+              _ETContract.transferFrom(_seller, _buyer, _delta);
             }
-            else{
-              _escrows[_seller] = _escrows[_seller].sub(_sellerAdvanceFee).sub(_sellerEscrowHalf);
-              payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty).add(_sellerEscrowHalf).add(_contributionPoolAmounts[_buyer]), _escrows[_seller].add(_contributionPoolAmounts[_seller]));
-            }
-
-            for (uint i = 0; i< _arbiterAddressesSeller.length; i++){
-              _ETContract.approve(_arbiterAddressesSeller[i], arbiterCharges);
-              _ETContract.transfer(_arbiterAddressesSeller[i], arbiterCharges);
+            else if(_securityDepositSeller > 0){
+              _ETContract.transferFrom(_seller, _buyer, _securityDepositSeller);
             }
 
-        }
-        else{
-          // Seller wins (So 50% of escrow and advance is kept by the seller)
-          uint sellerCharges = SafeMath.div(_escrows[_buyer], 2).add(_contributionPoolAmounts[_seller].add(_escrows[_seller]));
-          uint buyerCharges = _eventPaymentAmount.add(_contributionPoolAmounts[_buyer]);
-          arbiterCharges = SafeMath.div(_escrows[_buyer], _arbiterAddressesSeller.length);
-          for ( i = 0; i< _arbiterAddressesSeller.length; i++){
-            _ETContract.approve(_arbiterAddressesSeller[i], arbiterCharges);
-            _ETContract.transfer(_arbiterAddressesSeller[i], arbiterCharges);
           }
-          payout(_eventProtocolCharges, buyerCharges, sellerCharges);
+          else{
+            _escrows[_seller] = _escrows[_seller].sub(_sellerAdvanceFee).sub(_sellerEscrowHalf);
+            payout(_eventProtocolCharges, _sellerAdvanceFee.add(_sellerCancellationPenalty).add(_sellerEscrowHalf).add(_contributionPoolAmounts[_buyer]), _escrows[_seller].add(_contributionPoolAmounts[_seller]));
+          }
+
+          for (uint i = 0; i< _arbiterAddressesBuyer.length; i++){
+            _ETContract.approve(_arbiterAddressesBuyer[i], arbiterCharges);
+            _ETContract.transfer(_arbiterAddressesBuyer[i], arbiterCharges);
+          }
+
           return true;
+
+      }
+      else{
+        // Seller wins (So 50% of escrow and event payment amount is paid)
+        uint sellerCharges = SafeMath.div(_escrows[_buyer], 2).add(_contributionPoolAmounts[_seller]).add(_escrows[_seller]).add(_eventPaymentAmount);
+        uint buyerCharges = _contributionPoolAmounts[_buyer];
+        arbiterCharges = SafeMath.div(_escrows[_buyer], _arbiterAddressesSeller.length);
+        for ( i = 0; i< _arbiterAddressesSeller.length; i++){
+          //_ETContract.approve(_arbiterAddressesSeller[i], arbiterCharges);
+          //_ETContract.transfer(_arbiterAddressesSeller[i], arbiterCharges);
         }
+        payout(_eventProtocolCharges, buyerCharges, sellerCharges);
+        return true;
       }
   }
 
@@ -442,15 +456,6 @@ contract EventContract{
       _eventState = EVENTSTATE.REPORTING;
       return true;
   }
-
-  function testThis() public view returns (bool){
-      return now > _eventDate;
-  }
-
-  function testNew() public view returns (uint){
-      return now;
-  }
-
 
 
 }

@@ -312,9 +312,158 @@ contract('Event Protocol State machine testing', async (accounts) => {
       assert.strictEqual(_bool8, true, "Balance of accounts[8] does not match");
 
       let contractBalance = await eventToken.balanceOf(eventToken.address);
+
       let _bool9 = contractBalance.eq(0);
       assert.strictEqual(_bool9, true, "The contract balances do not match");
 
   })
+
+  it("Test 5: Integration test for postponing event once by buyer", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+
+      state3 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+  it("Test 6: Integration test for postponing event once by seller", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+
+      state3 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+  it("Test 7: Integration test for postponing event twice by buyer", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3, state4, state5;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+
+      state3 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      state4 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+
+      state5 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+
+      assert.strictEqual(state4.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state5.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+  it("Test 8: Integration test for postponing event twice by seller", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3, state4, state5;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+
+      state3 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      state4 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+
+      state5 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+
+      assert.strictEqual(state4.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state5.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+  it("Test 9: Integration test for postponing event twice by buyer followed by seller", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3, state4, state5;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+
+      state3 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      state4 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+
+      state5 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+
+      assert.strictEqual(state4.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state5.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+  it("Test 10: Integration test for postponing event twice by seller followed by buyer", async() =>{
+      let buyer = await instance.getBuyer();
+      let seller = await instance.getSeller();
+      let state1, state2, state3, state4, state5;
+
+      state1 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      state2 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+
+      state3 = await instance.getEventState();
+
+      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      state4 = await instance.getEventState();
+      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+
+      state5 = await instance.getEventState();
+
+      assert.strictEqual(state1.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+      assert.strictEqual(state2.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state3.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+
+      assert.strictEqual(state4.toNumber(), 2, "The contract states do not match (Expected POSTPONEMENT)");
+      assert.strictEqual(state5.toNumber(), 1, "The contract states do not match (Expected ACTIVE)");
+  })
+
+
+
+
 
 })

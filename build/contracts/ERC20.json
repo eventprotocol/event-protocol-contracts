@@ -166,9 +166,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.24;\n\n/*************************************************\n* Title: ERC20 Token\n* Author: https://github.com/ethereum\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/ethereum/ethereum-org/blob/master/solidity/token-erc20.sol\n*************************************************/\n\n/*************************************************\n* Title: ERC20 Interface\n* Author: https://github.com/willitscale\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-09/ERC20.sol\n*************************************************/\n\n/// @title Interface for ERC20 Token Standard\n/// @author keshik\n/// @dev The contract declares the required functions and events to meet the ERC20 Standard\ninterface ERC20{\n  function approve(address _spender, uint256 _value) external returns (bool);\n  function allowance(address _owner, address _spender) external view returns (uint256);\n  function balanceOf(address _owner) external view returns (uint256);\n  function transfer(address _to, uint256 _value) external returns (bool);\n  function transferFrom(address _from, address _to, uint256 _value) external returns (bool);\n\n  event Transfer(address _from, address _to, uint256 _value);\n  event Approval(address _from, address _to, uint256 _value);\n}\n",
-  "sourcePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC20.sol",
+  "sourcePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC20.sol",
   "ast": {
-    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC20.sol",
+    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC20.sol",
     "exportedSymbols": {
       "ERC20": [
         63
@@ -946,7 +946,7 @@
     "src": "0:1314:0"
   },
   "legacyAST": {
-    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC20.sol",
+    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC20.sol",
     "exportedSymbols": {
       "ERC20": [
         63
@@ -1729,5 +1729,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-05T23:01:04.527Z"
+  "updatedAt": "2018-08-09T20:51:18.052Z"
 }

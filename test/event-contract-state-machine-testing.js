@@ -322,13 +322,14 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 5: Integration test for postponing event once by buyer", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3;
+      let state1, state2, state3, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
 
       state3 = await instance.getEventState();
 
@@ -340,13 +341,14 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 6: Integration test for postponing event once by seller", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3;
+      let state1, state2, state3, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
 
       state3 = await instance.getEventState();
 
@@ -358,19 +360,21 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 7: Integration test for postponing event twice by buyer", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3, state4, state5;
+      let state1, state2, state3, state4, state5, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
 
       state3 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
       state4 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
 
       state5 = await instance.getEventState();
 
@@ -385,19 +389,21 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 8: Integration test for postponing event twice by seller", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3, state4, state5;
+      let state1, state2, state3, state4, state5, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
 
       state3 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
       state4 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
 
       state5 = await instance.getEventState();
 
@@ -412,19 +418,21 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 9: Integration test for postponing event twice by buyer followed by seller", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3, state4, state5;
+      let state1, state2, state3, state4, state5, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
 
       state3 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
       state4 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
 
       state5 = await instance.getEventState();
 
@@ -439,19 +447,21 @@ contract('Event Protocol State machine testing', async (accounts) => {
   it("Test 10: Integration test for postponing event twice by seller followed by buyer", async() =>{
       let buyer = await instance.getBuyer();
       let seller = await instance.getSeller();
-      let state1, state2, state3, state4, state5;
+      let state1, state2, state3, state4, state5, eventDate;
 
       state1 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533555335, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
       state2 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533555335, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
 
       state3 = await instance.getEventState();
+      eventDate = await instance.getEventDate();
 
-      await instance.submitPostponeRequest(1533641735, {from:accounts[2]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[2]});
       state4 = await instance.getEventState();
-      await instance.submitPostponeRequest(1533641735, {from:accounts[1]});
+      await instance.submitPostponeRequest(eventDate.plus(1000).toNumber(), {from:accounts[1]});
 
       state5 = await instance.getEventState();
 

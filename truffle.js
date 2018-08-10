@@ -1,6 +1,15 @@
 require('dotenv').config();
 require('babel-register');
 require('babel-polyfill');
+
+var HDWalletProvider = require("truffle-hdwallet-provider");
+
+// Store secrets separately
+var secrets = require("./secrets");
+
+// Rinkeby Settings
+var rinkebyProvider = new HDWalletProvider(secrets.mnemonic, secrets.infuraURL);  
+
 /*
  * NB: since truffle-hdwallet-provider 0.0.5 you must wrap HDWallet providers in a
  * function when declaring them. Failure to do so will cause commands to hang. ex:
@@ -29,6 +38,11 @@ module.exports = {
           runs: 200
         }
       }
+    },
+
+    rinkeby: {
+      provider: rinkebyProvider, 
+      network_id: 4,
     }
   }
 };

@@ -61,9 +61,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.24;\n\n/*************************************************\n* Title: ERC223 Interface\n* Author: https://github.com/willitscale\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-10/ERC223ReceivingContract.sol\n*************************************************/\n\n/// @title Interface for ERC223 Token Standard\n/// @author keshik\n/// @dev The contract declares the required functions and events to meet the ERC223 Standard\ninterface ERC223{\n  function transferToContract(address _to, uint256 _value, bytes _data) external returns (bool);\n\n  event Transfer(address _from, address _to, uint256 _value, bytes _data);\n}\n",
-  "sourcePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC223.sol",
+  "sourcePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
   "ast": {
-    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC223.sol",
+    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
     "exportedSymbols": {
       "ERC223": [
         87
@@ -362,7 +362,7 @@
     "src": "0:695:1"
   },
   "legacyAST": {
-    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/ERC223.sol",
+    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
     "exportedSymbols": {
       "ERC223": [
         87
@@ -666,5 +666,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-09T20:51:18.052Z"
+  "updatedAt": "2018-08-12T06:17:07.969Z"
 }

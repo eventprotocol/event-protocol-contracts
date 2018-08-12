@@ -86,9 +86,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.24;\n\n/*************************************************\n* Title: ERC20 Token\n* Author: https://github.com/willitscale\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-10/Token.sol\n*************************************************/\n\n/// @title StandardToken\n/// @author keshik\n/// @dev This contract will implement the generic functionalities of a Standard ERC20 Token\n\nimport \"./SafeMath.sol\";\n\ncontract StandardToken{\n\n  using SafeMath for uint256;\n\n  // Token identities\n  string internal _name;\n  string internal _symbol;\n  uint8 internal _decimels;\n  uint256 internal _totalSupply;\n  uint256 private _base = 10;\n\n  constructor (string name, string symbol, uint8 decimels, uint256 totalTokens) internal{\n      _name = name;\n      _symbol = symbol;\n      _decimels = decimels;\n      _totalSupply = SafeMath.mul(totalTokens, _base**_decimels);\n  }\n\n  // Getter functions for contract data fields\n  function name() public view returns (string){\n    return _name;\n  }\n\n  function symbol() public view returns (string){\n    return _symbol;\n  }\n\n  function decimels() public view returns (uint8){\n    return _decimels;\n  }\n\n  function totalSupply() public view returns (uint256){\n    return _totalSupply;\n  }\n\n}\n",
-  "sourcePath": "/home/ada/WebApp/event-protocol-contracts/contracts/StandardToken.sol",
+  "sourcePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/StandardToken.sol",
   "ast": {
-    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/StandardToken.sol",
+    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/StandardToken.sol",
     "exportedSymbols": {
       "StandardToken": [
         2938
@@ -109,7 +109,7 @@
         "src": "0:24:7"
       },
       {
-        "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/SafeMath.sol",
+        "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/SafeMath.sol",
         "file": "./SafeMath.sol",
         "id": 2857,
         "nodeType": "ImportDirective",
@@ -1063,7 +1063,7 @@
     "src": "0:1297:7"
   },
   "legacyAST": {
-    "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/StandardToken.sol",
+    "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/StandardToken.sol",
     "exportedSymbols": {
       "StandardToken": [
         2938
@@ -1084,7 +1084,7 @@
         "src": "0:24:7"
       },
       {
-        "absolutePath": "/home/ada/WebApp/event-protocol-contracts/contracts/SafeMath.sol",
+        "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/SafeMath.sol",
         "file": "./SafeMath.sol",
         "id": 2857,
         "nodeType": "ImportDirective",
@@ -2043,5 +2043,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-09T20:51:18.065Z"
+  "updatedAt": "2018-08-12T06:17:07.975Z"
 }

@@ -1,14 +1,18 @@
 const GreatestShow = artifacts.require("./EventToken.sol");
 
 module.exports = (deployer, network, accounts) => {
-
-    let deployAddress = accounts[0]; // by convention
-    let controller2Address = accounts[1];
+    console.log(accounts[0])
+    let deployAddress = accounts[0]; // eth address : Keshik
+    let controller2Address = 0x614770ac272333e6b8c356f8bafebd1443485be7; // eth address : Joshia
 
     console.log('Preparing for deployment of Event Token...');
 
     if( network == "mainnet" ) {
         throw "Halt. Sanity check. Not ready for deployment to mainnet. Manually remove this throw and try again.";
+    }
+
+    else if (network == "rinkeby"){
+        console.log("Rinkeby network found!.. Proceed with deployment")
     }
 
     console.log('deploying from:' + deployAddress);

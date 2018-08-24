@@ -1,11 +1,12 @@
 # Event Protocol : Contracts
 Includes ERC223 implementation of the utility token (Event Token) and smart contracts to utilize these tokens for the operations of this platform.
 
-## Deploying Event Token on Rinkeby
-# Install requirements
+# Deploying Event Token on Rinkeby
+## Install requirements
 npm install truffle-hdwallet-provider
 
-# Migration file to be edited as follows
+## Migration file to be edited as follows
+// Include the secrets.js file in the project parent directory
 var HDWalletProvider = require("truffle-hdwallet-provider");
 
 // Store secrets separately
@@ -14,7 +15,7 @@ var secrets = require("./secrets");
 // Rinkeby Settings
 var rinkebyProvider = new HDWalletProvider(secrets.mnemonic, secrets.infuraURL);
 
-# truffle.js file
+## truffle.js file
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!

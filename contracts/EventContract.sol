@@ -31,15 +31,7 @@ contract EventContract{
   //Helper data function
   mapping(address => mapping(address => bool)) private _isContributor;
 
-  struct TKN {
-   address sender;
-   uint256 value;
-   bytes data;
-   bytes4 sig;
-  }
-
   mapping(address => uint256) internal _transferredAmounts;
-  TKN[] _transactionData;
 
   mapping(uint => mapping(address => bool)) private _postPoneRequest;
   mapping(address => uint8) private _resolveEvent;
@@ -106,14 +98,7 @@ contract EventContract{
 
   function tokenFallback(address _from, uint256 _value, bytes _data) public{
       require(_eventState == EVENTSTATE.NOTACTIVE);
-      TKN memory tkn;
-      tkn.sender = _from;
-      tkn.value = _value;
-      tkn.data = _data;
-      uint32 u = uint32(_data[3]) + (uint32(_data[2]) << 8) + (uint32(_data[1]) << 16) + (uint32(_data[0]) << 24);
-      tkn.sig = bytes4(u);
       _transferredAmounts[_from] = _transferredAmounts[_from].add(_value);
-      _transactionData.push(tkn);
 
       if(_transferredAmounts[_buyer] >= getBuyerActivationAmount() && _transferredAmounts[_seller] >= getSellerActivationAmount()){
         _eventState = EVENTSTATE.ACTIVE;

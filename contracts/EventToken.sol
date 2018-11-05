@@ -16,7 +16,7 @@ import "./ERC20.sol";
 import "./ERC223.sol";
 import "./EventContract.sol";
 
-contract EventToken is StandardToken("EventToken-alpha", "ET-alpha", 18, 500000000), ERC20, ERC223{
+contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, ERC223{
 
   using SafeMath for uint256;
   address private _controller1;

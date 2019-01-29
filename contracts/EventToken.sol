@@ -93,9 +93,9 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   /// @notice send `_value` token to `_to` from `msg.sender`
   /// @param _to The address of the recipient
   /// @param _value The amount of token to be transferred
-  /// @param _data Data that is encoded along with the transaction
+  /// @param _contractId Event pointer
   /// @return Whether the transfer was successful or not
-  function transferToContract(address _to, uint256 _value, bytes _data) external isNotPaused returns (bool){
+  function transferToContract(address _to, uint256 _value, uint _contractId) external isNotPaused returns (bool){
       require(_value > 0);
       require(_value < MAX_LIMIT);
       require(_balanceOf[msg.sender] >= _value);
@@ -105,8 +105,8 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
       _balanceOf[_to] = _balanceOf[_to].add(_value);
       _allowance[msg.sender][_to] = _allowance[msg.sender][_to].sub(_value);
       EventContract _contract = EventContract(_to);
-      _contract.tokenFallback(msg.sender, _value, _data);
-      emit Transfer(msg.sender, _to, _value, _data);
+      _contract.tokenFallback(msg.sender, _value, _contractId);
+      emit Transfer(msg.sender, _to, _value, _contractId);
       return true;
   }
 
@@ -202,19 +202,5 @@ contract EventToken is StandardToken("EventToken", "ET", 18, 500000000), ERC20, 
   function isActive() external view returns (bool){
     return _paused == false;
   }
-
-  /// @notice increment the event count value by 1
-  /// @return Whether the increment is successful
-  function incrementEventCount() external returns (bool){
-    _numberOfEvents++;
-    return true;
-  }
-
-  /// @return The total amount of events registered
-  function getEventCount() external view returns (uint256){
-    return _numberOfEvents;
-  }
-
-
 
 }

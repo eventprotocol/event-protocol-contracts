@@ -13,8 +13,8 @@ module.exports = (deployer, network, accounts) => {
 
     else if (network == "rinkeby"){
         //console.log("Rinkeby network found!.. Proceed with deployment")
-        console.log("Already deployed");
-        throw "Already deployed at 0x38dFdB8658f05113E5d2F97E2A79e253132c2e4C"
+        //console.log("Already deployed");
+        //throw "Already deployed at 0x38dFdB8658f05113E5d2F97E2A79e253132c2e4C"
     }
 
     console.log('deploying from:' + deployAddress);

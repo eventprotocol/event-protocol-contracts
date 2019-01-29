@@ -21,8 +21,8 @@
         },
         {
           "indexed": false,
-          "name": "_data",
-          "type": "bytes"
+          "name": "_contractId",
+          "type": "uint256"
         }
       ],
       "name": "Transfer",
@@ -40,8 +40,8 @@
           "type": "uint256"
         },
         {
-          "name": "_data",
-          "type": "bytes"
+          "name": "_contractId",
+          "type": "uint256"
         }
       ],
       "name": "transferToContract",
@@ -60,7 +60,7 @@
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.24;\n\n/*************************************************\n* Title: ERC223 Interface\n* Author: https://github.com/willitscale\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-10/ERC223ReceivingContract.sol\n*************************************************/\n\n/// @title Interface for ERC223 Token Standard\n/// @author keshik\n/// @dev The contract declares the required functions and events to meet the ERC223 Standard\ninterface ERC223{\n  function transferToContract(address _to, uint256 _value, bytes _data) external returns (bool);\n\n  event Transfer(address _from, address _to, uint256 _value, bytes _data);\n}\n",
+  "source": "pragma solidity ^0.4.24;\n\n/*************************************************\n* Title: ERC223 Interface\n* Author: https://github.com/willitscale\n* Date: NA\n* Code version: NA\n* Availability: https://github.com/willitscale/learning-solidity/blob/master/tutorial-10/ERC223ReceivingContract.sol\n*************************************************/\n\n/// @title Interface for ERC223 Token Standard\n/// @author keshik\n/// @dev The contract declares the required functions and events to meet the ERC223 Standard\ninterface ERC223{\n  function transferToContract(address _to, uint256 _value, uint _contractId) external returns (bool);\n\n  event Transfer(address _from, address _to, uint256 _value, uint _contractId);\n}\n\n",
   "sourcePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
   "ast": {
     "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
@@ -165,31 +165,31 @@
                 {
                   "constant": false,
                   "id": 71,
-                  "name": "_data",
+                  "name": "_contractId",
                   "nodeType": "VariableDeclaration",
                   "scope": 76,
-                  "src": "579:11:1",
+                  "src": "579:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_bytes_calldata_ptr",
-                    "typeString": "bytes"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 70,
-                    "name": "bytes",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "579:5:1",
+                    "src": "579:4:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "549:42:1"
+              "src": "549:47:1"
             },
             "payable": false,
             "returnParameters": {
@@ -202,7 +202,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 76,
-                  "src": "610:4:1",
+                  "src": "615:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -213,7 +213,7 @@
                     "id": 73,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "610:4:1",
+                    "src": "615:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -223,10 +223,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "609:6:1"
+              "src": "614:6:1"
             },
             "scope": 87,
-            "src": "522:94:1",
+            "src": "522:99:1",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -248,7 +248,7 @@
                   "name": "_from",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "635:13:1",
+                  "src": "640:13:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -259,7 +259,7 @@
                     "id": 77,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "635:7:1",
+                    "src": "640:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -275,7 +275,7 @@
                   "name": "_to",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "650:11:1",
+                  "src": "655:11:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -286,7 +286,7 @@
                     "id": 79,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "650:7:1",
+                    "src": "655:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -302,7 +302,7 @@
                   "name": "_value",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "663:14:1",
+                  "src": "668:14:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -313,7 +313,7 @@
                     "id": 81,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "663:7:1",
+                    "src": "668:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -326,40 +326,40 @@
                   "constant": false,
                   "id": 84,
                   "indexed": false,
-                  "name": "_data",
+                  "name": "_contractId",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "679:11:1",
+                  "src": "684:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_bytes_memory_ptr",
-                    "typeString": "bytes"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 83,
-                    "name": "bytes",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "679:5:1",
+                    "src": "684:4:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "634:57:1"
+              "src": "639:62:1"
             },
-            "src": "620:72:1"
+            "src": "625:77:1"
           }
         ],
         "scope": 88,
-        "src": "502:192:1"
+        "src": "502:202:1"
       }
     ],
-    "src": "0:695:1"
+    "src": "0:706:1"
   },
   "legacyAST": {
     "absolutePath": "/home/keshik/Documents/GitHub/event-protocol-contracts/contracts/ERC223.sol",
@@ -464,31 +464,31 @@
                 {
                   "constant": false,
                   "id": 71,
-                  "name": "_data",
+                  "name": "_contractId",
                   "nodeType": "VariableDeclaration",
                   "scope": 76,
-                  "src": "579:11:1",
+                  "src": "579:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_bytes_calldata_ptr",
-                    "typeString": "bytes"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 70,
-                    "name": "bytes",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "579:5:1",
+                    "src": "579:4:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "549:42:1"
+              "src": "549:47:1"
             },
             "payable": false,
             "returnParameters": {
@@ -501,7 +501,7 @@
                   "name": "",
                   "nodeType": "VariableDeclaration",
                   "scope": 76,
-                  "src": "610:4:1",
+                  "src": "615:4:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -512,7 +512,7 @@
                     "id": 73,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "610:4:1",
+                    "src": "615:4:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bool",
                       "typeString": "bool"
@@ -522,10 +522,10 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "609:6:1"
+              "src": "614:6:1"
             },
             "scope": 87,
-            "src": "522:94:1",
+            "src": "522:99:1",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
@@ -547,7 +547,7 @@
                   "name": "_from",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "635:13:1",
+                  "src": "640:13:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -558,7 +558,7 @@
                     "id": 77,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "635:7:1",
+                    "src": "640:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -574,7 +574,7 @@
                   "name": "_to",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "650:11:1",
+                  "src": "655:11:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -585,7 +585,7 @@
                     "id": 79,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "650:7:1",
+                    "src": "655:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
@@ -601,7 +601,7 @@
                   "name": "_value",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "663:14:1",
+                  "src": "668:14:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -612,7 +612,7 @@
                     "id": 81,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "663:7:1",
+                    "src": "668:7:1",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -625,40 +625,40 @@
                   "constant": false,
                   "id": 84,
                   "indexed": false,
-                  "name": "_data",
+                  "name": "_contractId",
                   "nodeType": "VariableDeclaration",
                   "scope": 86,
-                  "src": "679:11:1",
+                  "src": "684:16:1",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_bytes_memory_ptr",
-                    "typeString": "bytes"
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
                   },
                   "typeName": {
                     "id": 83,
-                    "name": "bytes",
+                    "name": "uint",
                     "nodeType": "ElementaryTypeName",
-                    "src": "679:5:1",
+                    "src": "684:4:1",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_bytes_storage_ptr",
-                      "typeString": "bytes"
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "634:57:1"
+              "src": "639:62:1"
             },
-            "src": "620:72:1"
+            "src": "625:77:1"
           }
         ],
         "scope": 88,
-        "src": "502:192:1"
+        "src": "502:202:1"
       }
     ],
-    "src": "0:695:1"
+    "src": "0:706:1"
   },
   "compiler": {
     "name": "solc",
@@ -666,5 +666,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-11-04T12:50:51.273Z"
+  "updatedAt": "2018-11-07T00:14:00.614Z"
 }

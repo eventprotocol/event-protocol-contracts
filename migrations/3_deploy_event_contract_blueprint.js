@@ -5,20 +5,8 @@ module.exports = (deployer, network, accounts) => {
     let deployerAddress = accounts[0];
     console.log(deployerAddress);
 
-    let eventName = "Kevin Park Conference";
-    let eventLocation = "Orchard, SG";
-    let eventDate = 1542295699;
-    let buyer = 0x24eeac4f88412dc27f4b802ea8eb8b4725cf3af8;
-    let allowedPostponements = 2;
-    let buyerEscrow = 5;
-    let sellerEscrow = 5;
-    let sellerAdvanceFee = 50;
-    let sellerCancellationPenalty = 25;
-    let buyerContributionPoolAmount = 20;
-    let sellerContributionPoolAmount = 20;
-    let eventPaymentAmount = 800;
-    let eventProtocolAddress = accounts[0];
-    let eventTokenAddress = 0x38dFdB8658f05113E5d2F97E2A79e253132c2e4C;
+    let eventProtocolAddress = 0x1948072CD04b93F4a8BAFaaEf8B19166F03AF8d6;
+    let eventTokenAddress = 0x7143a8faa78b56fbdfefe0cfba58016f21620bf6;
 
     console.log('Preparing for deployment of Event Contract Blue print...');
 
@@ -33,8 +21,6 @@ module.exports = (deployer, network, accounts) => {
     console.log('deploying from:' + deployerAddress);
     console.log("Network is " + network);
     deployer.deploy(EventContract,
-        eventName, eventLocation, eventDate, buyer, allowedPostponements, buyerEscrow, sellerEscrow, sellerAdvanceFee,
-        sellerCancellationPenalty, buyerContributionPoolAmount, sellerContributionPoolAmount,
-        eventPaymentAmount, eventProtocolAddress, eventTokenAddress, {from: deployerAddress});
+	eventProtocolAddress, eventTokenAddress, {from: deployerAddress});
 
 };

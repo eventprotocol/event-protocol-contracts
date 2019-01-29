@@ -12,8 +12,7 @@ pragma solidity ^0.4.24;
 /// @author keshik
 /// @dev The contract declares the required functions and events to meet the ERC223 Standard
 interface ERC223{
-  function transferToContract(address _to, uint256 _value, uint _contractId) external returns (bool);
+  function transferToContract(address _to, uint256 _value, bytes _data) external returns (bool);
 
-  event Transfer(address _from, address _to, uint256 _value, uint _contractId);
+  event Transfer(address _from, address _to, uint256 _value, bytes _data);
 }
-
